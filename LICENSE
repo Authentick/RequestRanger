@@ -1,0 +1,8 @@
+This project only includes code that is compatible with the MIT license. To find the relevant licenses for all included components check the LICENSE files in the respective directories.
+
+Currently the following components are included:
+
+- HTMLEntities: Apache 2.0
+- HttpParser: MIT
+- Request Ranger: MIT
+- SwiftDiff: Apache 2.0
