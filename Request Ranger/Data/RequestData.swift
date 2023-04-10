@@ -1,7 +1,7 @@
 import Foundation
 
-enum HttpMethodEnum {
-    case GET
+enum HttpMethodEnum: String {
+    case GET = "GET"
 }
 
 class ProxiedHttpResponse: Identifiable, ObservableObject {

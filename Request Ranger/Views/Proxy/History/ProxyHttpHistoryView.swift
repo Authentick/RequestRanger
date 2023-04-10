@@ -34,6 +34,9 @@ struct ProxyHttpHistoryView: View {
         return Group {
             Table(of: ProxiedHttpRequest.self, selection: $selectedRequest, sortOrder: $sortOrder) {
                 TableColumn("Host", value: \.hostName)
+                TableColumn("Method") { request in
+                    Text(request.method.rawValue)
+                }
                 TableColumn("Path", value: \.path)
             } rows: {
                 ForEach(proxyData.httpRequests) { request in
