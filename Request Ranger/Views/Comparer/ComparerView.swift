@@ -2,12 +2,6 @@ import SwiftUI
 
 struct ComparerView: View {
     let appName = Bundle.main.infoDictionary!["CFBundleDisplayName"] as! String
-
-    struct CompareEntry: Identifiable, Hashable {
-        let id: Int
-        let value: String
-        var length: Int { value.lengthOfBytes(using: .utf8 ) }
-    }
     
 #if os(iOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -15,29 +9,29 @@ struct ComparerView: View {
 #else
     private let isCompact = false
 #endif
+    @EnvironmentObject var comparisonData: ComparisonData
     @State private var intCount = 0
-    @State private var entries: [CompareEntry] = []
-    @State var item1SelectedEntry = Set<CompareEntry.ID>()
-    @State var item2SelectedEntry = Set<CompareEntry.ID>()
-    @State private var item1SortOrder = [KeyPathComparator(\CompareEntry.id)]
-    @State private var item2SortOrder = [KeyPathComparator(\CompareEntry.id)]
+    @State var item1SelectedEntry = Set<ComparisonData.CompareEntry.ID>()
+    @State var item2SelectedEntry = Set<ComparisonData.CompareEntry.ID>()
+    @State private var item1SortOrder = [KeyPathComparator(\ComparisonData.CompareEntry.id)]
+    @State private var item2SortOrder = [KeyPathComparator(\ComparisonData.CompareEntry.id)]
     
     var body: some View {
-        let isValidSelection = item1SelectedEntry.count == 1 && item2SelectedEntry.count == 1 && item1SelectedEntry.first != item2SelectedEntry.first && entries.contains(where: {$0.id == item1SelectedEntry.first}) && entries.contains(where: {$0.id == item2SelectedEntry.first})
+        let isValidSelection = item1SelectedEntry.count == 1 && item2SelectedEntry.count == 1 && item1SelectedEntry.first != item2SelectedEntry.first && comparisonData.data.contains(where: {$0.id == item1SelectedEntry.first}) && comparisonData.data.contains(where: {$0.id == item2SelectedEntry.first})
         
         var originalText: String = ""
         var modifiedText: String = ""
         
         if let selectedItem1Id = item1SelectedEntry.first {
             if let selectedItem2Id = item2SelectedEntry.first {
-                originalText = entries.first(where: {$0.id == selectedItem1Id})?.value ?? ""
-                modifiedText = entries.first(where: {$0.id == selectedItem2Id})?.value ?? ""
+                originalText = comparisonData.data.first(where: {$0.id == selectedItem1Id})?.value ?? ""
+                modifiedText = comparisonData.data.first(where: {$0.id == selectedItem2Id})?.value ?? ""
             }
         }
         
         func appendEntry(value: String) {
             self.intCount = intCount + 1
-            entries.append(CompareEntry(id: intCount, value: value))
+            comparisonData.data.append(ComparisonData.CompareEntry(id: intCount, value: value))
         }
         
         return NavigationStack {
@@ -53,7 +47,7 @@ struct ComparerView: View {
                         HStack(alignment: .top) {
                             
                             HStack(alignment: .top) {
-                                Table(entries, selection: $item1SelectedEntry, sortOrder: $item1SortOrder) {
+                                Table(comparisonData.data, selection: $item1SelectedEntry, sortOrder: $item1SortOrder) {
                                     TableColumn("#", value: \.id) { element in
                                         HStack {
                                             Text(String(element.id))
@@ -71,7 +65,7 @@ struct ComparerView: View {
                                 }
                                 .frame(minHeight: 200)
                                 .onChange(of: item1SortOrder) {
-                                    entries.sort(using: $0)
+                                    comparisonData.data.sort(using: $0)
                                 }
                                 
                                 Spacer()
@@ -110,12 +104,12 @@ struct ComparerView: View {
                             Label("File", systemImage: "text.insert")
                         }
 #endif
-
+                        
                         Spacer()
                         
                         Button(role: .destructive) {
                             item1SelectedEntry.forEach { id in
-                                entries.removeAll(where: {$0.id == id})
+                                comparisonData.data.removeAll(where: {$0.id == id})
                                 item2SelectedEntry.remove(id)
                             }
                             item1SelectedEntry = []
@@ -130,7 +124,7 @@ struct ComparerView: View {
                 }
                 
                 Section("Item 2") {
-                    Table(entries, selection: $item2SelectedEntry, sortOrder: $item2SortOrder) {
+                    Table(comparisonData.data, selection: $item2SelectedEntry, sortOrder: $item2SortOrder) {
                         TableColumn("#", value: \.id) { element in
                             HStack {
                                 Text(String(element.id))
@@ -147,7 +141,7 @@ struct ComparerView: View {
                     }
                     
                     .onChange(of: item2SortOrder) {
-                        entries.sort(using: $0)
+                        comparisonData.data.sort(using: $0)
                     }
                     .frame(minHeight: 200)
                 }
@@ -169,7 +163,7 @@ struct ComparerView: View {
             .toolbar() {
                 ToolbarItem() {
                     Button(role: .destructive) {
-                        entries = []
+                        comparisonData.data = []
                     } label: {
                         Text("Clear")
                             .frame(maxWidth: .infinity)

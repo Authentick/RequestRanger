@@ -20,6 +20,7 @@
 		FB366E4E29D8830100E2D087 /* ProxyHttpResponseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB366E4D29D8830100E2D087 /* ProxyHttpResponseView.swift */; };
 		FB366E5029D8844400E2D087 /* SwiftUIWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB366E4F29D8844400E2D087 /* SwiftUIWebView.swift */; };
 		FB5150E629DA20B3003B4CDA /* ComparerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB5150E529DA20B3003B4CDA /* ComparerView.swift */; };
+		FB58450929E4119200DF9F0A /* ComparisonData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB58450829E4119200DF9F0A /* ComparisonData.swift */; };
 		FB58EE9629E3440300BE7A6D /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = FB58EE9429E3440300BE7A6D /* LICENSE */; };
 		FB58EE9729E3440300BE7A6D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FB58EE9529E3440300BE7A6D /* README.md */; };
 		FB58EE9A29E3441900BE7A6D /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = FB58EE9829E3441900BE7A6D /* LICENSE */; };
@@ -61,6 +62,7 @@
 		FB366E4D29D8830100E2D087 /* ProxyHttpResponseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyHttpResponseView.swift; sourceTree = "<group>"; };
 		FB366E4F29D8844400E2D087 /* SwiftUIWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIWebView.swift; sourceTree = "<group>"; };
 		FB5150E529DA20B3003B4CDA /* ComparerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComparerView.swift; sourceTree = "<group>"; };
+		FB58450829E4119200DF9F0A /* ComparisonData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComparisonData.swift; sourceTree = "<group>"; };
 		FB58EE9429E3440300BE7A6D /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		FB58EE9529E3440300BE7A6D /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		FB58EE9829E3441900BE7A6D /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -200,6 +202,7 @@
 			isa = PBXGroup;
 			children = (
 				FB2BF92029CF50E8006FA9C3 /* RequestData.swift */,
+				FB58450829E4119200DF9F0A /* ComparisonData.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -315,6 +318,7 @@
 				FB2BF8FC29CF335D006FA9C3 /* ContentView.swift in Sources */,
 				FB2BF91529CF3D0E006FA9C3 /* ProxyHttpHistoryView.swift in Sources */,
 				FB2BF8FA29CF335D006FA9C3 /* RequestRangerApp.swift in Sources */,
+				FB58450929E4119200DF9F0A /* ComparisonData.swift in Sources */,
 				FB2BF91E29CF4CEF006FA9C3 /* ServerFactory.swift in Sources */,
 				FB65094A29D5E55700E00674 /* Settings.swift in Sources */,
 				FB03F27329DF08E2009BF572 /* ProxyInterceptView.swift in Sources */,

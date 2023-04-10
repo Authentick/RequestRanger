@@ -11,12 +11,13 @@ extension Notification.Name {
 @main
 struct RequestRangerApp: App {
     @StateObject var proxyData = ProxyData()
+    @StateObject var comparisonListData = ComparisonData()
     @State var isProxyRunning = false
     @State var showProxyStartError: Bool = false
     @State var proxyStartErrorMessage: String? = nil
     @AppStorage("proxyPort") var proxyListenerPort: Int = AppStorageIntDefaults.proxyPort.rawValue
     let server: Server = Server.sharedInstance
-
+    
     func startProxy() {
         DispatchQueue.global(qos: .userInitiated).async {
             do {
@@ -39,6 +40,7 @@ struct RequestRangerApp: App {
         return Group {
             WindowGroup {
                 ContentView(proxyData: proxyData, isProxyRunning: $isProxyRunning)
+                    .environmentObject(comparisonListData)
                     .onReceive(NotificationCenter.default.publisher(for: .newHttpRequest))
                 { obj in
                     if let proxiedHttpRequest = obj.object as? ProxiedHttpRequest {
