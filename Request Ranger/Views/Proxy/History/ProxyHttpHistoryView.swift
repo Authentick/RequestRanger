@@ -106,6 +106,31 @@ struct ProxyHttpHistoryView_Previews: PreviewProvider {
         let proxyRequest = ProxiedHttpRequest()
         proxyRequest.hostName = "example.com"
         proxyRequest.path = "/test"
+        proxyRequest.rawRequest = """
+GET /images/mail.gif HTTP/1.1
+Host: example.de
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/111.0
+Accept: image/avif,image/webp,*/*
+Accept-Language: en-US,en;q=0.5
+Connection: close
+Referer: http://example.de/
+Pragma: no-cache
+Cache-Control: no-cache
+"""
+        proxyRequest.response = ProxiedHttpResponse()
+        proxyRequest.response!.rawResponse = """
+HTTP/1.1 200 OK
+Content-Type: image/gif
+Content-Length: 307
+Connection: close
+Date: Mon, 10 Apr 2023 10:06:49 GMT
+Server: Apache
+Last-Modified: Wed, 03 Jan 2018 11:32:53 GMT
+ETag: "133-561dd9372e340"
+Accept-Ranges: bytes
+
+GIF89a
+"""
         let proxyData = ProxyData()
         proxyData.httpRequests.append(proxyRequest)
         return ProxyHttpHistoryView(proxyData: proxyData)
