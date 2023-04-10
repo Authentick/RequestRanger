@@ -15,6 +15,7 @@ struct ComparerView: View {
     @State var item2SelectedEntry = Set<ComparisonData.CompareEntry.ID>()
     @State private var item1SortOrder = [KeyPathComparator(\ComparisonData.CompareEntry.id)]
     @State private var item2SortOrder = [KeyPathComparator(\ComparisonData.CompareEntry.id)]
+    @State private var showImport = false
     
     var body: some View {
         let isValidSelection = item1SelectedEntry.count == 1 && item2SelectedEntry.count == 1 && item1SelectedEntry.first != item2SelectedEntry.first && comparisonData.data.contains(where: {$0.id == item1SelectedEntry.first}) && comparisonData.data.contains(where: {$0.id == item2SelectedEntry.first})
@@ -78,31 +79,34 @@ struct ComparerView: View {
                         PasteButton(payloadType: String.self, onPaste: {entry in
                             appendEntry(value: entry.first!)
                         })
-#if os(macOS)
+                        
                         Button {
-                            let panel = NSOpenPanel()
-                            panel.allowsMultipleSelection = false
-                            panel.canChooseDirectories = false
-                            panel.prompt = "Add"
-                            panel.message = "Choose file for comparison"
-                            if panel.runModal() == .OK {
-                                guard let path = panel.url?.path(percentEncoded: false) else {
-                                    return
-                                }
-                                
-                                guard let data = FileManager.default.contents(atPath: path) else {
-                                    return
-                                }
-                                
-                                guard let txt = NSString(data: data, encoding: NSUTF8StringEncoding) else {
-                                    return
-                                }
-                                
-                                appendEntry(value: String(txt))
-                            }
+                            /*let panel = NSOpenPanel()
+                             panel.allowsMultipleSelection = false
+                             panel.canChooseDirectories = false
+                             panel.prompt = "Add"
+                             panel.message = "Choose file for comparison"
+                             if panel.runModal() == .OK {
+                             guard let path = panel.url?.path(percentEncoded: false) else {
+                             return
+                             }
+                             
+                             guard let data = FileManager.default.contents(atPath: path) else {
+                             return
+                             }
+                             
+                             guard let txt = NSString(data: data, encoding: NSUTF8StringEncoding) else {
+                             return
+                             }
+                             
+                             appendEntry(value: String(txt))
+                             }*/
+                            showImport = true
                         } label: {
                             Label("File", systemImage: "text.insert")
                         }
+#if os(iOS)
+                        .buttonStyle(BorderlessButtonStyle())
 #endif
                         
                         Spacer()
@@ -169,14 +173,41 @@ struct ComparerView: View {
                             .frame(maxWidth: .infinity)
                     }
                 }
-                
-            }.navigationTitle("Compare")
+            }
+            .fileImporter(
+                isPresented: $showImport,
+                allowedContentTypes: [.plainText],
+                allowsMultipleSelection: true,
+                onCompletion: { results in
+                    
+                    switch results {
+                    case .success(let fileUrls):
+                        for fileUrl in fileUrls {
+                            let path = fileUrl.path
+                            guard let data = FileManager.default.contents(atPath: path) else {
+                                return
+                            }
+                            
+                            guard let txt = NSString(data: data, encoding: NSUTF8StringEncoding) else {
+                                return
+                            }
+                            
+                            appendEntry(value: String(txt))
+                        }
+                        break
+                        
+                    default:
+                        break
+                    }
+                }
+            )
+            .navigationTitle("Compare")
         }
     }
 }
 
 struct ComparerView_Previews: PreviewProvider {
     static var previews: some View {
-        ComparerView()
+        ComparerView().environmentObject(ComparisonData())
     }
 }
