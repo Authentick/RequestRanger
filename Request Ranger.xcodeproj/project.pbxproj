@@ -32,6 +32,8 @@
 		FBD4E93329DAD46200AB08B3 /* CompareResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD4E93229DAD46200AB08B3 /* CompareResultView.swift */; };
 		FBEACECD29D744CE004A8B64 /* DecodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBEACECC29D744CE004A8B64 /* DecodeView.swift */; };
 		FBF9A12629DA0BC3004B808E /* HTMLEntities in Frameworks */ = {isa = PBXBuildFile; productRef = FBF9A12529DA0BC3004B808E /* HTMLEntities */; };
+		FBFAC69C29E45ADA007BC838 /* SaveData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBFAC69B29E45ADA007BC838 /* SaveData.swift */; };
+		FBFAC69E29E46B0A007BC838 /* RequestRangerFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBFAC69D29E46B0A007BC838 /* RequestRangerFile.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -77,6 +79,8 @@
 		FBD4E92F29DA442D00AB08B3 /* SwiftDiff */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SwiftDiff; sourceTree = "<group>"; };
 		FBD4E93229DAD46200AB08B3 /* CompareResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompareResultView.swift; sourceTree = "<group>"; };
 		FBEACECC29D744CE004A8B64 /* DecodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodeView.swift; sourceTree = "<group>"; };
+		FBFAC69B29E45ADA007BC838 /* SaveData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveData.swift; sourceTree = "<group>"; };
+		FBFAC69D29E46B0A007BC838 /* RequestRangerFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRangerFile.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +141,7 @@
 			children = (
 				FBB3E34129E3451C00529FA3 /* LICENSE */,
 				FBB8954A29D6398300A7E913 /* Info.plist */,
+				FBFAC69F29E46B1B007BC838 /* File */,
 				FB2BF91F29CF509F006FA9C3 /* Data */,
 				FB2BF91C29CF4CE3006FA9C3 /* Networking */,
 				FB2BF90829CF3585006FA9C3 /* Views */,
@@ -203,6 +208,7 @@
 			children = (
 				FB2BF92029CF50E8006FA9C3 /* RequestData.swift */,
 				FB58450829E4119200DF9F0A /* ComparisonData.swift */,
+				FBFAC69B29E45ADA007BC838 /* SaveData.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -230,6 +236,14 @@
 				FBEACECC29D744CE004A8B64 /* DecodeView.swift */,
 			);
 			path = Decode;
+			sourceTree = "<group>";
+		};
+		FBFAC69F29E46B1B007BC838 /* File */ = {
+			isa = PBXGroup;
+			children = (
+				FBFAC69D29E46B0A007BC838 /* RequestRangerFile.swift */,
+			);
+			path = File;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -314,12 +328,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FBFAC69C29E45ADA007BC838 /* SaveData.swift in Sources */,
 				FBEACECD29D744CE004A8B64 /* DecodeView.swift in Sources */,
 				FB2BF8FC29CF335D006FA9C3 /* ContentView.swift in Sources */,
 				FB2BF91529CF3D0E006FA9C3 /* ProxyHttpHistoryView.swift in Sources */,
 				FB2BF8FA29CF335D006FA9C3 /* RequestRangerApp.swift in Sources */,
 				FB58450929E4119200DF9F0A /* ComparisonData.swift in Sources */,
 				FB2BF91E29CF4CEF006FA9C3 /* ServerFactory.swift in Sources */,
+				FBFAC69E29E46B0A007BC838 /* RequestRangerFile.swift in Sources */,
 				FB65094A29D5E55700E00674 /* Settings.swift in Sources */,
 				FB03F27329DF08E2009BF572 /* ProxyInterceptView.swift in Sources */,
 				FB366E4E29D8830100E2D087 /* ProxyHttpResponseView.swift in Sources */,
@@ -459,7 +475,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Request Ranger/Request Ranger.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Request Ranger/Preview Content\"";
 				DEVELOPMENT_TEAM = XV65C36P5A;
@@ -469,7 +485,7 @@
 				INFOPLIST_FILE = "Request Ranger/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Request Ranger";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Lukas Reschke, Authentick GmbH";
 				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
@@ -477,7 +493,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.authentick.SuperProxy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -497,7 +513,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Request Ranger/Request Ranger.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Request Ranger/Preview Content\"";
 				DEVELOPMENT_TEAM = XV65C36P5A;
@@ -507,7 +523,7 @@
 				INFOPLIST_FILE = "Request Ranger/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Request Ranger";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Lukas Reschke, Authentick GmbH";
 				INFOPLIST_KEY_UILaunchStoryboardName = "Launch Screen.storyboard";
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
@@ -515,7 +531,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.authentick.SuperProxy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
