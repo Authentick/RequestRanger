@@ -9,7 +9,7 @@ extension Notification.Name {
 }
 
 @main
-struct SuperProxyApp: App {
+struct RequestRangerApp: App {
     @StateObject var proxyData = ProxyData()
     @State var isProxyRunning = false
     @State var showProxyStartError: Bool = false

@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		FB03F27329DF08E2009BF572 /* ProxyInterceptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB03F27229DF08E2009BF572 /* ProxyInterceptView.swift */; };
-		FB2BF8FA29CF335D006FA9C3 /* SuperProxyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF8F929CF335D006FA9C3 /* SuperProxyApp.swift */; };
+		FB2BF8FA29CF335D006FA9C3 /* RequestRangerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF8F929CF335D006FA9C3 /* RequestRangerApp.swift */; };
 		FB2BF8FC29CF335D006FA9C3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF8FB29CF335D006FA9C3 /* ContentView.swift */; };
 		FB2BF8FE29CF335E006FA9C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB2BF8FD29CF335E006FA9C3 /* Assets.xcassets */; };
 		FB2BF90129CF335E006FA9C3 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB2BF90029CF335E006FA9C3 /* Preview Assets.xcassets */; };
@@ -49,7 +49,7 @@
 /* Begin PBXFileReference section */
 		FB03F27229DF08E2009BF572 /* ProxyInterceptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyInterceptView.swift; sourceTree = "<group>"; };
 		FB2BF8F629CF335D006FA9C3 /* Request Ranger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Request Ranger.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		FB2BF8F929CF335D006FA9C3 /* SuperProxyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperProxyApp.swift; sourceTree = "<group>"; };
+		FB2BF8F929CF335D006FA9C3 /* RequestRangerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRangerApp.swift; sourceTree = "<group>"; };
 		FB2BF8FB29CF335D006FA9C3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		FB2BF8FD29CF335E006FA9C3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FB2BF90029CF335E006FA9C3 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -138,7 +138,7 @@
 				FB2BF91F29CF509F006FA9C3 /* Data */,
 				FB2BF91C29CF4CE3006FA9C3 /* Networking */,
 				FB2BF90829CF3585006FA9C3 /* Views */,
-				FB2BF8F929CF335D006FA9C3 /* SuperProxyApp.swift */,
+				FB2BF8F929CF335D006FA9C3 /* RequestRangerApp.swift */,
 				FB2BF8FB29CF335D006FA9C3 /* ContentView.swift */,
 				FB2BF8FD29CF335E006FA9C3 /* Assets.xcassets */,
 				FBB674F829D9E40D00961338 /* Request Ranger.entitlements */,
@@ -314,7 +314,7 @@
 				FBEACECD29D744CE004A8B64 /* DecodeView.swift in Sources */,
 				FB2BF8FC29CF335D006FA9C3 /* ContentView.swift in Sources */,
 				FB2BF91529CF3D0E006FA9C3 /* ProxyHttpHistoryView.swift in Sources */,
-				FB2BF8FA29CF335D006FA9C3 /* SuperProxyApp.swift in Sources */,
+				FB2BF8FA29CF335D006FA9C3 /* RequestRangerApp.swift in Sources */,
 				FB2BF91E29CF4CEF006FA9C3 /* ServerFactory.swift in Sources */,
 				FB65094A29D5E55700E00674 /* Settings.swift in Sources */,
 				FB03F27329DF08E2009BF572 /* ProxyInterceptView.swift in Sources */,
