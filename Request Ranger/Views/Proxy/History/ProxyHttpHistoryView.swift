@@ -104,8 +104,8 @@ struct ProxyHttpHistoryView: View {
 
 struct ProxyHttpHistoryView_Previews: PreviewProvider {
     static var previews: some View {
-        let response = ProxiedHttpResponse()
-        response.rawResponse = """
+        let response = ProxiedHttpResponse(
+            rawResponse: """
 HTTP/1.1 200 OK
 Content-Type: image/gif
 Content-Length: 307
@@ -117,7 +117,7 @@ ETag: "133-561dd9372e340"
 Accept-Ranges: bytes
 
 GIF89a
-"""
+""")
         
         let proxyRequest = ProxiedHttpRequest(
             id: 1,

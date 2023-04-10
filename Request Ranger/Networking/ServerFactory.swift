@@ -49,10 +49,8 @@ public class Server {
                     let httpParser: HttpParser = HttpParser()
                     let parsedRequest = httpParser.parseRequest(request)
                     
-                    
                     // FIXME: error handling
-                    let hostName = parsedRequest.headers!["Host"]!.first!
-                    
+                    let hostName = parsedRequest.headers["Host"]!.first!
                     
                     var fixedRequest = request
                     // Rewrite URIs to relative
@@ -72,17 +70,12 @@ public class Server {
                         fixedRequest = fixedRequest.replacingCharacters(in: range, with: "")
                     }
                     
-                    var path = ""
-                    if let range = parsedRequest.target!.range(of:"http://" + hostName) {
-                        path = parsedRequest.target!.replacingCharacters(in: range, with:"")
-                    }
-                    
                     self.requestCount += 1
                     let loggedRequest = ProxiedHttpRequest(
                         id: self.requestCount,
                         hostName: hostName,
-                        method: HttpMethodEnum.GET, // FIXME - use proper HTTP verb
-                        path: path,
+                        method: HttpMethodEnum(rawValue: parsedRequest.method)!,
+                        path: parsedRequest.target,
                         rawRequest: fixedRequest
                     )
                     
@@ -116,8 +109,7 @@ public class Server {
                             remoteConnection!.receive(minimumIncompleteLength: 0, maximumLength: 1_000_000_000) { (data, context, isComplete, error) in
                                 if(data != nil) {
                                     let fullReply = String(decoding: data!, as: UTF8.self)
-                                    let response: ProxiedHttpResponse = ProxiedHttpResponse()
-                                    response.rawResponse = (request.response?.rawResponse ?? "") + fullReply
+                                    let response = ProxiedHttpResponse(rawResponse: (request.response?.rawResponse ?? "") + fullReply)
                                     request.response = response
                                 }
                                 

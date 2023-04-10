@@ -17,18 +17,19 @@ field1=value1&field2=value2
         let parser = HttpParser()
         let parsedRequest = parser.parseRequest(requestBody)
         
-        var expectedRequest = HttpRequest()
-        expectedRequest.FullRequest = requestBody
-        expectedRequest.method = "POST"
-        expectedRequest.target = "/test"
-        expectedRequest.version = "HTTP/1.1"
-        expectedRequest.body = "field1=value1&field2=value2"
-        expectedRequest.headers = [
-            "Content-Type": ["application/x-www-form-urlencoded"],
-            "Content-Length": ["27"],
-            "Host": ["foo.example"],
-            "Server": ["CF", "Private"]
-        ]
+        let expectedRequest = HttpRequest(
+            FullRequest: requestBody,
+            method: "POST",
+            target: "/test",
+            version: "HTTP/1.1",
+            headers: [
+                "Content-Type": ["application/x-www-form-urlencoded"],
+                "Content-Length": ["27"],
+                "Host": ["foo.example"],
+                "Server": ["CF", "Private"]
+            ],
+            body: "field1=value1&field2=value2"
+        )
         
         XCTAssertEqual(parsedRequest, expectedRequest)
     }

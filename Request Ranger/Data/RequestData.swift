@@ -6,7 +6,11 @@ enum HttpMethodEnum: String {
 
 class ProxiedHttpResponse: Identifiable, ObservableObject {
     @Published var id = UUID()
-    @Published var rawResponse = ""
+    @Published var rawResponse: String
+    
+    init(rawResponse: String) {
+        self.rawResponse = rawResponse
+    }
 }
 
 class ProxiedHttpRequest : Identifiable, ObservableObject {
@@ -18,7 +22,7 @@ class ProxiedHttpRequest : Identifiable, ObservableObject {
     @Published var path: String
     @Published var rawRequest: String
     @Published var response: ProxiedHttpResponse?
-
+    
     init(
         id: Int,
         hostName: String,

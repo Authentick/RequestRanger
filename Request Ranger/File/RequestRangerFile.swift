@@ -2,6 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import AppleArchive
 import System
+import HttpParser
 
 /** Save file that is written to the disk. The file is a LZFSE compressed directory containing of several JSON files. */
 struct RequestRangerFile: FileDocument {
@@ -18,7 +19,7 @@ struct RequestRangerFile: FileDocument {
     init(data: Data) throws {
         let archiveURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
         try data.write(to: archiveURL)
-
+        
         defer {
             try? FileManager.default.removeItem(at: archiveURL)
         }
@@ -41,7 +42,7 @@ struct RequestRangerFile: FileDocument {
         defer {
             try? decodeStream.close()
         }
-               
+        
         let decompressPath = NSTemporaryDirectory() + "/" + UUID().uuidString
         if !FileManager.default.fileExists(atPath: decompressPath) {
             do {
@@ -60,7 +61,7 @@ struct RequestRangerFile: FileDocument {
         defer {
             try? extractStream.close()
         }
-
+        
         do {
             _ = try ArchiveStream.process(readingFrom: decodeStream,
                                           writingTo: extractStream)
@@ -68,23 +69,31 @@ struct RequestRangerFile: FileDocument {
             fatalError("Decoding failed")
         }
         try? extractStream.close()
-
+        
         let jsonDecoder = JSONDecoder()
         let proxyHistoryURL = URL(filePath: decompressPath + "/proxy_history.json")
         let proxyHistoryData = try Data(contentsOf: proxyHistoryURL)
-
+        
         let savedRequests = try jsonDecoder.decode([HttpRequestForSaving].self, from: proxyHistoryData)
         self.proxyData = ProxyData()
         self.proxyData.httpRequests = savedRequests.map { entry -> ProxiedHttpRequest in
+            let httpParser = HttpParser()
+            let parsedRequest = httpParser.parseRequest(entry.rawRequest)
+            var response: ProxiedHttpResponse? = nil
+            if let entryResponse = entry.response {
+                response = ProxiedHttpResponse(rawResponse: entryResponse.rawResponse)
+                response!.id = entryResponse.uuid
+            }
+            
             let request = ProxiedHttpRequest(
                 id: entry.id,
                 hostName: entry.hostName,
-                method: HttpMethodEnum.GET, // FIXME
-                path: "/test", // FIXME
+                method: HttpMethodEnum(rawValue: parsedRequest.method)!,
+                path: parsedRequest.target,
                 rawRequest: entry.rawRequest,
-                response: nil // FIXME
+                response: response
             )
-
+            
             return request
         }
         
@@ -110,10 +119,15 @@ struct RequestRangerFile: FileDocument {
         let jsonEncoder = JSONEncoder()
         
         let requests = proxyData.httpRequests.map { entry -> HttpRequestForSaving in
+            var response: HttpRequestForSaving.HttpResponseForSaving? = nil
+            if let entryResponse = entry.response {
+                response = HttpRequestForSaving.HttpResponseForSaving(uuid: entryResponse.id, rawResponse: entryResponse.rawResponse)
+            }
+            
             return HttpRequestForSaving(
                 id: entry.id,
                 rawRequest: entry.rawRequest,
-                rawResponse: entry.response?.rawResponse,
+                response: response,
                 date: Date(),
                 hostName: entry.hostName
             )
@@ -150,7 +164,7 @@ struct RequestRangerFile: FileDocument {
                 fatalError("Unable to create destination directory.")
             }
         }
-
+        
         FileManager.default.createFile(atPath: filePath.string, contents: nil)
         guard let writeFileStream = ArchiveByteStream.fileStream(
             path: filePath,
