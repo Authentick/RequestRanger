@@ -33,10 +33,9 @@ struct ProxyHttpHistoryView: View {
     var historyView: some View {
         return Group {
             Table(of: ProxiedHttpRequest.self, selection: $selectedRequest, sortOrder: $sortOrder) {
+                TableColumn("#", value: \.idString)
                 TableColumn("Host", value: \.hostName)
-                TableColumn("Method") { request in
-                    Text(request.method.rawValue)
-                }
+                TableColumn("Method", value: \.methodString)
                 TableColumn("Path", value: \.path)
             } rows: {
                 ForEach(proxyData.httpRequests) { request in
@@ -105,22 +104,8 @@ struct ProxyHttpHistoryView: View {
 
 struct ProxyHttpHistoryView_Previews: PreviewProvider {
     static var previews: some View {
-        let proxyRequest = ProxiedHttpRequest()
-        proxyRequest.hostName = "example.com"
-        proxyRequest.path = "/test"
-        proxyRequest.rawRequest = """
-GET /images/mail.gif HTTP/1.1
-Host: example.de
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/111.0
-Accept: image/avif,image/webp,*/*
-Accept-Language: en-US,en;q=0.5
-Connection: close
-Referer: http://example.de/
-Pragma: no-cache
-Cache-Control: no-cache
-"""
-        proxyRequest.response = ProxiedHttpResponse()
-        proxyRequest.response!.rawResponse = """
+        let response = ProxiedHttpResponse()
+        response.rawResponse = """
 HTTP/1.1 200 OK
 Content-Type: image/gif
 Content-Length: 307
@@ -133,6 +118,25 @@ Accept-Ranges: bytes
 
 GIF89a
 """
+        
+        let proxyRequest = ProxiedHttpRequest(
+            id: 1,
+            hostName: "example.com",
+            method: HttpMethodEnum.GET,
+            path: "/test",
+            rawRequest: """
+GET /images/mail.gif HTTP/1.1
+Host: example.de
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/111.0
+Accept: image/avif,image/webp,*/*
+Accept-Language: en-US,en;q=0.5
+Connection: close
+Referer: http://example.de/
+Pragma: no-cache
+Cache-Control: no-cache
+""",
+            response: response
+        )
         let proxyData = ProxyData()
         proxyData.httpRequests.append(proxyRequest)
         return ProxyHttpHistoryView(proxyData: proxyData)

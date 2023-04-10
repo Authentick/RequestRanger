@@ -29,7 +29,14 @@ struct ProxyHttpResponseView: View {
 
 struct ProxyHttpResponseView_Previews: PreviewProvider {
     static var previews: some View {
-        let httpRequest: ProxiedHttpRequest = ProxiedHttpRequest()
+        let httpRequest: ProxiedHttpRequest = ProxiedHttpRequest(
+            id: 1,
+            hostName: "example.com",
+            method: HttpMethodEnum.GET,
+            path: "/test",
+            rawRequest: "..",
+            response: nil
+        )
         return ProxyHttpResponseView(httpRequest: httpRequest)
     }
 }

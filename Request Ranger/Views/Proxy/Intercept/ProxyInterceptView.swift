@@ -28,7 +28,8 @@ struct ProxyInterceptEditorView: View {
 
 struct ProxyInterceptEditorView_Previews: PreviewProvider {
     static var previews: some View {
-        ProxyInterceptEditorView(text: Binding.constant("""
+        ProxyInterceptEditorView(
+            text: Binding.constant("""
 GET /favicon.ico HTTP/1.1
 Host: example.de
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/111.0
@@ -41,7 +42,20 @@ If-Modified-Since: Wed, 03 Jan 2018 11:37:57 GMT
 If-None-Match: "d5f-561dda5918f40"
 
 
-"""), request: (DispatchGroup(), ProxiedHttpRequest()), requests: Binding.constant([]))
+"""),
+            request: (
+                DispatchGroup(),
+                ProxiedHttpRequest(
+                    id: 1,
+                    hostName: "example.com",
+                    method: HttpMethodEnum.GET,
+                    path: "/test",
+                    rawRequest: "...",
+                    response: nil
+                )
+            ),
+            requests: Binding.constant([])
+        )
     }
 }
 

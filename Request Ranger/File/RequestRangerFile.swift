@@ -76,10 +76,15 @@ struct RequestRangerFile: FileDocument {
         let savedRequests = try jsonDecoder.decode([HttpRequestForSaving].self, from: proxyHistoryData)
         self.proxyData = ProxyData()
         self.proxyData.httpRequests = savedRequests.map { entry -> ProxiedHttpRequest in
-            let request = ProxiedHttpRequest()
-            request.rawRequest = entry.rawRequest
-            request.response = ProxiedHttpResponse()
-            request.response!.rawResponse = entry.rawResponse ?? ""
+            let request = ProxiedHttpRequest(
+                id: entry.id,
+                hostName: entry.hostName,
+                method: HttpMethodEnum.GET, // FIXME
+                path: "/test", // FIXME
+                rawRequest: entry.rawRequest,
+                response: nil // FIXME
+            )
+
             return request
         }
         
@@ -105,7 +110,13 @@ struct RequestRangerFile: FileDocument {
         let jsonEncoder = JSONEncoder()
         
         let requests = proxyData.httpRequests.map { entry -> HttpRequestForSaving in
-            return HttpRequestForSaving(rawRequest: entry.rawRequest, rawResponse: entry.response?.rawResponse, date: Date())
+            return HttpRequestForSaving(
+                id: entry.id,
+                rawRequest: entry.rawRequest,
+                rawResponse: entry.response?.rawResponse,
+                date: Date(),
+                hostName: entry.hostName
+            )
         }
         let requestJson = try jsonEncoder.encode(requests)
         let requestJsonFile = FileWrapper(regularFileWithContents: requestJson)

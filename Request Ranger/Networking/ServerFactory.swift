@@ -13,6 +13,7 @@ public class Server {
         listener = nil
     }
     
+    private var requestCount = 0
     public var isInterceptEnabled = false
     
     internal func startListener(port: Int) throws {
@@ -71,15 +72,20 @@ public class Server {
                         fixedRequest = fixedRequest.replacingCharacters(in: range, with: "")
                     }
                     
-                    let loggedRequest = ProxiedHttpRequest()
-                    loggedRequest.hostName = hostName
-                    loggedRequest.method = HttpMethodEnum.GET
-                    
+                    var path = ""
                     if let range = parsedRequest.target!.range(of:"http://" + hostName) {
-                        loggedRequest.path = parsedRequest.target!.replacingCharacters(in: range, with:"")
+                        path = parsedRequest.target!.replacingCharacters(in: range, with:"")
                     }
-                    loggedRequest.rawRequest = fixedRequest
-
+                    
+                    self.requestCount += 1
+                    let loggedRequest = ProxiedHttpRequest(
+                        id: self.requestCount,
+                        hostName: hostName,
+                        method: HttpMethodEnum.GET, // FIXME - use proper HTTP verb
+                        path: path,
+                        rawRequest: fixedRequest
+                    )
+                    
                     let group = DispatchGroup()
                     group.enter()
     

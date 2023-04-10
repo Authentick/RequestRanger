@@ -81,26 +81,6 @@ struct ComparerView: View {
                         })
                         
                         Button {
-                            /*let panel = NSOpenPanel()
-                             panel.allowsMultipleSelection = false
-                             panel.canChooseDirectories = false
-                             panel.prompt = "Add"
-                             panel.message = "Choose file for comparison"
-                             if panel.runModal() == .OK {
-                             guard let path = panel.url?.path(percentEncoded: false) else {
-                             return
-                             }
-                             
-                             guard let data = FileManager.default.contents(atPath: path) else {
-                             return
-                             }
-                             
-                             guard let txt = NSString(data: data, encoding: NSUTF8StringEncoding) else {
-                             return
-                             }
-                             
-                             appendEntry(value: String(txt))
-                             }*/
                             showImport = true
                         } label: {
                             Label("File", systemImage: "text.insert")
