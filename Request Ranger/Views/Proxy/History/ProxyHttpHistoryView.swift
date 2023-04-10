@@ -91,10 +91,12 @@ struct ProxyHttpHistoryView: View {
         }
         .toolbar {
             ToolbarItem {
-                Button("Delete all", role: .destructive) {
+                Button(action: {
                     proxyData.httpRequests.removeAll()
-                }
-                .searchable(text: $searchText)
+                }, label: {
+                    Label("Delete all", systemImage: "trash")
+                })
+                .searchable(text: $searchText, prompt: Text("Filter requests and responses"))
             }
         }
         .navigationTitle("HTTP History")
