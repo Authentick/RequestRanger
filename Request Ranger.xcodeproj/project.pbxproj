@@ -475,7 +475,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Request Ranger/Request Ranger.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 7;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Request Ranger/Preview Content\"";
 				DEVELOPMENT_TEAM = XV65C36P5A;
@@ -513,7 +513,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Request Ranger/Request Ranger.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 7;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Request Ranger/Preview Content\"";
 				DEVELOPMENT_TEAM = XV65C36P5A;

@@ -43,7 +43,12 @@
 			<key>UTTypeDescription</key>
 			<string>Request Ranger HTTP Requests</string>
 			<key>UTTypeIcons</key>
-			<dict/>
+			<dict>
+				<key>UTTypeIconBadgeName</key>
+				<string>AppIcon</string>
+				<key>UTTypeIconText</key>
+				<string>Request Ranger</string>
+			</dict>
 			<key>UTTypeIdentifier</key>
 			<string>net.authentick.RequestRanger.SaveFile</string>
 			<key>UTTypeTagSpecification</key>
