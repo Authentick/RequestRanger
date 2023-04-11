@@ -159,25 +159,18 @@ struct ComparerView: View {
                 allowedContentTypes: [.plainText],
                 allowsMultipleSelection: true,
                 onCompletion: { results in
-                    
                     switch results {
                     case .success(let fileUrls):
                         for fileUrl in fileUrls {
-                            let path = fileUrl.path
-                            guard let data = FileManager.default.contents(atPath: path) else {
-                                return
+                            if fileUrl.startAccessingSecurityScopedResource() {
+                                let text = try! String(contentsOf: fileUrl, encoding: .utf8)
+                                appendEntry(value: String(text))
                             }
-                            
-                            guard let txt = NSString(data: data, encoding: NSUTF8StringEncoding) else {
-                                return
-                            }
-                            
-                            appendEntry(value: String(txt))
+                            fileUrl.stopAccessingSecurityScopedResource()
                         }
-                        break
                         
-                    default:
-                        break
+                    case .failure(let error):
+                        fatalError("Could not paste data from file")
                     }
                 }
             )

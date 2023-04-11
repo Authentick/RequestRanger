@@ -114,12 +114,15 @@ struct RequestRangerApp: App {
                         primaryButton: .destructive(
                             Text("Open"),
                             action: {
-                                let fileWrapper = try! FileWrapper(url: selectedFileURL!)
-                                let file = try! RequestRangerFile.init(data: fileWrapper.regularFileContents!)
-                                
-                                // FIXME: Properly parse incoming requests
-                                proxyData.httpRequests = file.proxyData.httpRequests
-                                comparisonListData.data = file.comparisonData.data
+                                if selectedFileURL!.startAccessingSecurityScopedResource() {
+                                    let fileWrapper = try! FileWrapper(url: selectedFileURL!)
+                                    let file = try! RequestRangerFile.init(data: fileWrapper.regularFileContents!)
+                                    
+                                    // FIXME: Properly parse incoming requests
+                                    proxyData.httpRequests = file.proxyData.httpRequests
+                                    comparisonListData.data = file.comparisonData.data
+                                }
+                                selectedFileURL!.stopAccessingSecurityScopedResource()
                             }
                         ),
                         secondaryButton: .cancel(
