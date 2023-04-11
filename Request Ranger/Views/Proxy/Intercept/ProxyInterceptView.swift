@@ -95,7 +95,7 @@ struct ProxyInterceptView: View {
                 }
             }
         }
-        .navigationTitle("Intercept HTTP request")
+        .navigationTitle("Intercept request")
         .onReceive(NotificationCenter.default.publisher(for: .newAttemptedHttpRequest), perform: { obj in
             if let request = obj.object as? proxyRequestAlias {
                 requests.append(request)

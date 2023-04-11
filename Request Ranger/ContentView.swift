@@ -2,60 +2,29 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var proxyData: ProxyData
-    @State private var selectedMainMenuEntry: MenuEntry?
+    @State private var selectedMainMenuEntry: String? = nil
     @Binding var isProxyRunning: Bool
     let appName = Bundle.main.infoDictionary!["CFBundleDisplayName"] as! String
-
-    
-    struct MenuEntryLabel: View {
-        let title: String
-        let systemImageName: String
-        
-        var body: some View {
-            Label(title: { Text(title)}, icon: { Image(systemName: systemImageName) } )
-        }
-    }
-    
-    struct MenuEntry: Identifiable, Hashable {
-        static func == (lhs: ContentView.MenuEntry, rhs: ContentView.MenuEntry) -> Bool {
-            lhs.id == rhs.id
-        }
-        
-        var id: String
-        let label: MenuEntryLabel
-        
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(id.hashValue)
-        }
-    }
-    
     
     var body: some View {
-        let proxyMenu = MenuEntry(
-            id: "proxy",
-            label: MenuEntryLabel(title: "Proxy", systemImageName: "network")
-        )
-        let decodeMenu = MenuEntry(
-            id: "decode",
-            label: MenuEntryLabel(title: "Decode & Encode", systemImageName: "barcode")
-        )
-        let compareMenu = MenuEntry(
-            id: "compare",
-            label: MenuEntryLabel(title: "Compare", systemImageName: "doc.on.doc")
-        )
-        
-        let menuEntries: [MenuEntry] = [
-            proxyMenu,
-            decodeMenu,
-            compareMenu
-        ]
-        
-        return NavigationSplitView {
+        NavigationSplitView {
             List(selection: $selectedMainMenuEntry) {
-                ForEach(menuEntries) { entry in
-                    NavigationLink(value: entry) {
-                        entry.label
+                Section("Proxy") {
+                    NavigationLink(value: "history") {
+                        Label("History", systemImage: "network")
                     }
+                    NavigationLink(value: "intercept") {
+                        Label("Intercept", systemImage: "pause.circle")
+                    }
+                }
+                Section("Tools") {
+                    NavigationLink(value: "decode") {
+                        Label("Encoder", systemImage: "barcode")
+                    }
+                    NavigationLink(value: "compare") {
+                        Label("Comparer", systemImage: "doc.on.doc")
+                    }
+                    
                 }
             }
             .navigationTitle(appName)
@@ -78,11 +47,13 @@ struct ContentView: View {
 #endif
             }
             
-            if(selectedMainMenuEntry == proxyMenu) {
-                ProxyView(proxyData: proxyData, isProxyRunning: $isProxyRunning)
-            } else if(selectedMainMenuEntry == decodeMenu) {
+            if(selectedMainMenuEntry == "history") {
+                ProxyHttpHistoryView(proxyData: proxyData, isProxyRunning: $isProxyRunning)
+            } else if(selectedMainMenuEntry == "intercept") {
+                ProxyInterceptView()
+            } else if(selectedMainMenuEntry == "decode") {
                 DecodeView()
-            } else if(selectedMainMenuEntry == compareMenu) {
+            } else if(selectedMainMenuEntry == "compare") {
                 ComparerView()
             }
         }

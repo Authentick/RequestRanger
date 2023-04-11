@@ -5,6 +5,7 @@ struct ProxyHttpHistoryView: View {
     @State private var sortOrder = [KeyPathComparator(\ProxiedHttpRequest.id)]
     @ObservedObject var proxyData: ProxyData
     @State private var searchText = ""
+    @Binding var isProxyRunning: Bool
     
     func GetRequestText() -> String {
         if(selectedRequest != nil) {
@@ -89,6 +90,13 @@ struct ProxyHttpHistoryView: View {
 #endif
         }
         .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                let text = isProxyRunning ? "Stop Proxy" : "Start Proxy"
+                Button(text) {
+                    NotificationCenter.default.post(name: .proxyRunCommand, object: !isProxyRunning)
+                }
+            }
+            
             ToolbarItem {
                 Button(action: {
                     proxyData.httpRequests.removeAll()
@@ -139,6 +147,6 @@ Cache-Control: no-cache
         )
         let proxyData = ProxyData()
         proxyData.httpRequests.append(proxyRequest)
-        return ProxyHttpHistoryView(proxyData: proxyData)
+        return ProxyHttpHistoryView(proxyData: proxyData, isProxyRunning: Binding.constant(false))
     }
 }
