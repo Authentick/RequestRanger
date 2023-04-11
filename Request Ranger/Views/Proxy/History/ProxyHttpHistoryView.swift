@@ -92,9 +92,14 @@ struct ProxyHttpHistoryView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 let text = isProxyRunning ? "Stop Proxy" : "Start Proxy"
-                Button(text) {
+                let systemImage = isProxyRunning ? "pause" : "play"
+
+                Button(action: {
                     NotificationCenter.default.post(name: .proxyRunCommand, object: !isProxyRunning)
-                }
+                }, label: {
+                    Label(text, systemImage: systemImage)
+                        .labelStyle(.titleAndIcon)
+                })
             }
             
             ToolbarItem {
