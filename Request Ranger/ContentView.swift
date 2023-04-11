@@ -4,6 +4,9 @@ struct ContentView: View {
     @ObservedObject var proxyData: ProxyData
     @State private var selectedMainMenuEntry: String? = nil
     @Binding var isProxyRunning: Bool
+    @Binding var showingExporter: Bool
+    @Binding var showingImporter: Bool
+    
     let appName = Bundle.main.infoDictionary!["CFBundleDisplayName"] as! String
     
     var body: some View {
@@ -31,7 +34,26 @@ struct ContentView: View {
 #if os(iOS)
             .toolbar(){
                 ToolbarItem() {
-                    NavigationLink("\(Image(systemName: "gear"))", destination: SettingsView())
+                    Menu {
+                        Button {
+                            showingImporter = true
+                        } label: {
+                            Label("Open", systemImage: "folder")
+                        }
+                        Button {
+                            showingExporter = true
+                        } label: {
+                            Label("Save", systemImage: "folder.badge.plus")
+                        }
+                    } label: {
+                        Label("Import / Export", systemImage: "folder")
+                    }
+                }
+                
+                ToolbarItem() {
+                    NavigationLink(destination: SettingsView()) {
+                        Label("Settings", systemImage: "gear")
+                    }
                 }
             }
 #endif
@@ -62,6 +84,6 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(proxyData: ProxyData(), isProxyRunning: Binding.constant(false))
+        ContentView(proxyData: ProxyData(), isProxyRunning: Binding.constant(false), showingExporter: Binding.constant(false), showingImporter: Binding.constant(false))
     }
 }

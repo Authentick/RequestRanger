@@ -53,9 +53,14 @@ struct RequestRangerApp: App {
         
         return Group {
             WindowGroup {
-                ContentView(proxyData: proxyData, isProxyRunning: $isProxyRunning)
-                    .environmentObject(comparisonListData)
-                    .onReceive(NotificationCenter.default.publisher(for: .newHttpRequest))
+                ContentView(
+                    proxyData: proxyData,
+                    isProxyRunning: $isProxyRunning,
+                    showingExporter: $showingExporter,
+                    showingImporter: $showingImporter
+                )
+                .environmentObject(comparisonListData)
+                .onReceive(NotificationCenter.default.publisher(for: .newHttpRequest))
                 { obj in
                     if let proxiedHttpRequest = obj.object as? ProxiedHttpRequest {
                         if(proxyData.httpRequests.contains(where: {$0.id == proxiedHttpRequest.id})) {
