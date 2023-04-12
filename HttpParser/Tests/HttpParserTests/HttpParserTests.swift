@@ -13,7 +13,7 @@ Server: CF\r
 \r
 field1=value1&field2=value2
 """
-
+        
         let parser = HttpParser()
         let parsedRequest = parser.parseRequest(requestBody)
         
@@ -34,6 +34,77 @@ field1=value1&field2=value2
         XCTAssertEqual(parsedRequest, expectedRequest)
     }
     
+    func testParseEmptyRequest() throws {
+        let requestBody = ""
+        
+        let parser = HttpParser()
+        let parsedRequest = parser.parseRequest(requestBody)
+        
+        let expectedRequest = HttpRequest(
+            FullRequest: requestBody,
+            method: "POST",
+            target: "/test",
+            version: "HTTP/1.1",
+            headers: [:],
+            body: ""
+        )
+        
+        XCTAssertEqual(parsedRequest, expectedRequest)
+        
+    }
+    
+    func testParseGarbageRequest() throws {
+        let requestBody = """
+POST /test HTTP/1.1 4
+Host- foo.example
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 27
+Server: Private
+Server; CF
+field1=value1&field2=value2
+"""
+        
+        let parser = HttpParser()
+        let parsedRequest = parser.parseRequest(requestBody)
+        
+        let expectedRequest = HttpRequest(
+            FullRequest: requestBody,
+            method: "POST",
+            target: "/test",
+            version: "HTTP/1.1",
+            headers: [:],
+            body: ""
+        )
+        
+        XCTAssertEqual(parsedRequest, expectedRequest)
+    }
+    
+    func testParseGarbageResponse() throws {
+        let responseBody = """
+HTTP/1.1 200; OK
+Content-Type: text/javascript
+Content-Length: 25
+Connection; close
+Date: Sat, 01 Apr 2023 16:51:03 GMT
+Server: Apache
+Last-Modified: Wed, 03 Jan 2018 11:33:17 GMT
+ETag: "19-561dd94e11940"
+Accept-Ranges: bytes\r
+$(document).foundation()
+"""
+        
+        let parser = HttpParser()
+        let parsedResponse = parser.parseResponse(responseBody)
+        
+        let expectedResponse = HttpResponse(
+            FullResponse: responseBody,
+            headers: [:],
+            body: ""
+        )
+        
+        XCTAssertEqual(parsedResponse, expectedResponse)
+    }
+    
     func testParseResponseBody() throws {
         let responseBody = """
 HTTP/1.1 200 OK
@@ -48,13 +119,24 @@ Accept-Ranges: bytes\r
 \r
 $(document).foundation()
 """
-
+        
         let parser = HttpParser()
         let parsedResponse = parser.parseResponse(responseBody)
         
-        var expectedResponse = HttpResponse()
-        expectedResponse.FullResponse = responseBody
-        expectedResponse.body = "$(document).foundation()"
+        let expectedResponse = HttpResponse(
+            FullResponse: responseBody,
+            headers: [
+                "Content-Type": ["text/javascript"],
+                "Content-Length": ["25"],
+                "Connection": ["close"],
+                "Date": ["Sat, 01 Apr 2023 16:51:03 GMT"],
+                "Server": ["Apache"],
+                "Last-Modified": ["Wed, 03 Jan 2018 11:33:17 GMT"],
+                "ETag": ["\"19-561dd94e11940\""],
+                "Accept-Ranges": ["bytes"],
+            ],
+            body: "$(document).foundation()"
+        )
         
         XCTAssertEqual(parsedResponse, expectedResponse)
     }

@@ -1,7 +1,8 @@
 import SwiftUI
+import HttpParser
 
 struct ProxyHttpHistoryView: View {
-    @State private var selectedRequest: ProxiedHttpRequest.ID? = nil
+    @State var selectedRequest: ProxiedHttpRequest.ID? = nil
     @State private var sortOrder = [KeyPathComparator(\ProxiedHttpRequest.id)]
     @ObservedObject var proxyData: ProxyData
     @State private var searchText = ""
@@ -31,6 +32,11 @@ struct ProxyHttpHistoryView: View {
         return ""
     }
     
+    private func GetResponseBody(request: ProxiedHttpRequest?) -> String {
+        let responseBody: String = request?.response?.rawResponse ?? ""
+        return (HttpParser()).parseResponse(responseBody).body
+    }
+    
     var historyView: some View {
         return Group {
             Table(of: ProxiedHttpRequest.self, selection: $selectedRequest, sortOrder: $sortOrder) {
@@ -56,26 +62,65 @@ struct ProxyHttpHistoryView: View {
                             }
                     }
                 }
-            }.onChange(of: sortOrder) {
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onChange(of: sortOrder) {
                 proxyData.httpRequests.sort(using: $0)
             }
             
-            TabView {
-                let requestText = GetRequestText()
-                
-                TextEditor(text: Binding.constant(requestText))
-                    .font(.body.monospaced())
-                    .tabItem {
-                        Label("Request", systemImage: "arrowshape.turn.up.right.fill")
+            ConditionalSplitView({
+                VStack {
+                    TabView {
+                        let requestText = GetRequestText()
+                        
+                        RawRequestTextViewerView(text: Binding.constant(requestText))
+                            .tabItem {
+                                Label("Raw", systemImage: "arrowshape.turn.up.right.fill")
+                            }
+                        
+                        let headers = Binding.constant(proxyData.httpRequests.first(where: { $0.id == selectedRequest })?.headers ?? [:])
+                        HeadersView(headers: headers)
+                            .tabItem {
+                                Label("Headers", systemImage: "pencil")
+                            }
                     }
-                ProxyHttpResponseView(
-                    httpRequest: proxyData.httpRequests.first(where: {$0.id == selectedRequest})
-                )
-                .font(.body.monospaced())
-                .tabItem {
-                    Label("Response", systemImage: "arrowshape.turn.up.left.fill")
-                }
-            }
+                }},{
+                    VStack {
+                        TabView {
+                            let selectedElement = proxyData.httpRequests.first(where: {$0.id == selectedRequest})
+                            RawRequestTextViewerView(text: Binding.constant(selectedElement?.response?.rawResponse ?? ""))
+                                .tabItem {
+                                    Label("Raw", systemImage: "arrowshape.turn.up.right.fill")
+                                }
+                            
+                            if let response = selectedElement?.response {
+                                let headers = Binding.constant(response.headers)
+                                HeadersView(headers: headers)
+                                    .tabItem {
+                                        Label("Headers", systemImage: "pencil")
+                                    }
+                            }
+                            
+                            if let response = selectedElement?.response {
+                                let contentType = response.headers["content-type"]
+                                if(contentType != nil && contentType!.contains("text/html")) {
+                                    var responseBody: String = GetResponseBody(request: selectedElement)
+                                    
+                                    SwiftUIWebView(
+                                        body: Binding.constant(responseBody),
+                                        requestUrl: Binding.constant("http://" + (selectedElement?.hostName ?? "") + (selectedElement?.path ?? ""))
+                                    )
+                                    .tabItem {
+                                        Label("HTML", systemImage: "photo.on.rectangle")
+                                    }
+                                }
+                            }
+                            
+                            
+                        }
+                    }}
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
     
@@ -93,7 +138,7 @@ struct ProxyHttpHistoryView: View {
             ToolbarItem(placement: .primaryAction) {
                 let text = isProxyRunning ? "Stop Proxy" : "Start Proxy"
                 let systemImage = isProxyRunning ? "pause" : "play"
-
+                
                 Button(action: {
                     NotificationCenter.default.post(name: .proxyRunCommand, object: !isProxyRunning)
                 }, label: {
@@ -130,13 +175,24 @@ ETag: "133-561dd9372e340"
 Accept-Ranges: bytes
 
 GIF89a
-""")
+""",
+            headers: [
+                "Content-Type": ["image/gif"],
+                "Content-Length": ["307"],
+                "Connection": ["close"],
+                "Date": ["Mon, 10 Apr 2023 10:06:49 GMT"],
+                "Server": ["Apache"],
+                "Last-Modified": ["Wed, 03 Jan 2018 11:32:53 GMT"],
+                "ETag": ["\"133-561dd9372e340\""],
+                "Accept-Ranges": ["bytes"],
+            ])
         
         let proxyRequest = ProxiedHttpRequest(
             id: 1,
             hostName: "example.com",
             method: HttpMethodEnum.GET,
             path: "/test",
+            headers: [:],
             rawRequest: """
 GET /images/mail.gif HTTP/1.1
 Host: example.de
@@ -152,6 +208,6 @@ Cache-Control: no-cache
         )
         let proxyData = ProxyData()
         proxyData.httpRequests.append(proxyRequest)
-        return ProxyHttpHistoryView(proxyData: proxyData, isProxyRunning: Binding.constant(false))
+        return ProxyHttpHistoryView(selectedRequest: 1, proxyData: proxyData, isProxyRunning: Binding.constant(false))
     }
 }

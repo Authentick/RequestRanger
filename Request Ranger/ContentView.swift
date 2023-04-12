@@ -2,11 +2,13 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var proxyData: ProxyData
-    @State private var selectedMainMenuEntry: String? = nil
+    @State private var selectedMainMenuEntry: String?
     @Binding var isProxyRunning: Bool
     @Binding var showingExporter: Bool
     @Binding var showingImporter: Bool
-    
+    @Binding var requestsPendingApproval: [ProxyHandler]
+    @Binding var isInterceptEnabled: Bool
+
     let appName = Bundle.main.infoDictionary!["CFBundleDisplayName"] as! String
     
     var body: some View {
@@ -59,31 +61,39 @@ struct ContentView: View {
 #endif
             
         } detail: {
-            if(selectedMainMenuEntry == nil) {
-#if os(iOS)
-                if(UIDevice.current.userInterfaceIdiom != .phone) {
-                    DashboardView()
-                }
-#else
-                DashboardView()
-#endif
-            }
-            
             if(selectedMainMenuEntry == "history") {
                 ProxyHttpHistoryView(proxyData: proxyData, isProxyRunning: $isProxyRunning)
             } else if(selectedMainMenuEntry == "intercept") {
-                ProxyInterceptView()
+                ProxyInterceptView(
+                    isInterceptEnabled: $isInterceptEnabled,
+                    requestsPendingApproval: $requestsPendingApproval
+                )
             } else if(selectedMainMenuEntry == "decode") {
                 DecodeView()
             } else if(selectedMainMenuEntry == "compare") {
                 ComparerView()
             }
+        }.onAppear() {
+#if os(iOS)
+            if(UIDevice.current.userInterfaceIdiom != .phone) {
+                selectedMainMenuEntry = "history"
+            }
+#else
+            selectedMainMenuEntry = "history"
+#endif
         }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(proxyData: ProxyData(), isProxyRunning: Binding.constant(false), showingExporter: Binding.constant(false), showingImporter: Binding.constant(false))
+        ContentView(
+            proxyData: ProxyData(),
+            isProxyRunning: Binding.constant(false),
+            showingExporter: Binding.constant(false),
+            showingImporter: Binding.constant(false),
+            requestsPendingApproval: Binding.constant([]),
+            isInterceptEnabled: Binding.constant(false)
+        )
     }
 }

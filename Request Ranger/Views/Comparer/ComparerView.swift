@@ -10,7 +10,6 @@ struct ComparerView: View {
     private let isCompact = false
 #endif
     @EnvironmentObject var comparisonData: ComparisonData
-    @State private var intCount = 0
     @State var item1SelectedEntry = Set<ComparisonData.CompareEntry.ID>()
     @State var item2SelectedEntry = Set<ComparisonData.CompareEntry.ID>()
     @State private var item1SortOrder = [KeyPathComparator(\ComparisonData.CompareEntry.id)]
@@ -31,8 +30,7 @@ struct ComparerView: View {
         }
         
         func appendEntry(value: String) {
-            self.intCount = intCount + 1
-            comparisonData.data.append(ComparisonData.CompareEntry(id: intCount, value: value))
+            NotificationCenter.default.post(name: .addCompareEntry, object: value)
         }
         
         return NavigationStack {

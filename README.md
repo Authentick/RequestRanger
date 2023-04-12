@@ -40,7 +40,7 @@ Compare two strings. The following features are currently supported:
 - Minimum macOS version: 13.1
 
 # Contributing and building it locally
-We ship all required dependencies inside this repository which enables you to build Request Ranger without any additional setup and also reduces the risk of supply chain attacks.
+We ship all non Apple third-party dependencies inside this repository which enables you to build Request Ranger without any additional setup and also reduces the risk of supply chain attacks.
 
 The following steps are required to build Request Ranger:
 

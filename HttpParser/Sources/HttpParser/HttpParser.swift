@@ -10,22 +10,25 @@ public struct HttpRequest: Equatable {
 }
 
 public struct HttpResponse: Equatable {
-    public var FullResponse: String = ""
-    public var body: String? = nil
+    public let FullResponse: String
+    public let headers: Dictionary<String, Set<String>>
+    public let body: String
 }
 
 public struct HttpParser {
     public init() {}
     
-    public func parseRequest(_ httpMessage: String) -> HttpRequest {
-
+    private func extractHeaders(_ httpMessage: String) -> Dictionary<String, Set<String>> {
         let firstLineCutOff = httpMessage.split(maxSplits: 1, whereSeparator: \.isNewline)
-        let requestLine = firstLineCutOff[0]
-        let requestLineSplitted = requestLine.split(whereSeparator: \.isWhitespace)
-
         let otherLines = String(firstLineCutOff[1])
         let doubleNewLineRange = otherLines.range(of: "\r\n\r\n")
-        let headersText = otherLines[..<doubleNewLineRange!.lowerBound]
+        
+        guard let headersEnd = doubleNewLineRange?.lowerBound else {
+            return [:]
+        }
+
+        let headersText = otherLines[..<headersEnd]
+
         var headersDictionary: Dictionary<String, Set<String>> = [:]
         headersText.enumerateLines { (line, _) in
             let splittedHeaderLine = line.split(separator: ":", maxSplits: 1)
@@ -40,26 +43,45 @@ public struct HttpParser {
             }
         }
 
+        return headersDictionary
+    }
+    
+    public func parseRequest(_ httpMessage: String) -> HttpRequest {
+        let firstLineCutOff = httpMessage.split(maxSplits: 1, whereSeparator: \.isNewline)
+        let requestLine = String(firstLineCutOff[0])
+        let requestLineSplitted = requestLine.split(whereSeparator: \.isWhitespace)
+
+
+        let otherLines = String(firstLineCutOff[1])
+        let doubleNewLineRange = otherLines.range(of: "\r\n\r\n")
+        let headersDictionary = extractHeaders(httpMessage)
+
         let request = HttpRequest(
             FullRequest: httpMessage,
             method: String(requestLineSplitted[0]),
             target: String(requestLineSplitted[1]),
             version: String(requestLineSplitted[2]),
             headers: headersDictionary,
-            body: otherLines.substring(from: doubleNewLineRange!.upperBound)
+            body: doubleNewLineRange != nil ? otherLines.substring(from: doubleNewLineRange!.upperBound) : ""
         )
 
         return request
     }
     
     public func parseResponse(_ httpMessage: String) -> HttpResponse {
-        var response = HttpResponse()
-        response.FullResponse = httpMessage
-        
+        var responseBody = ""
         if let range = httpMessage.range(of: "\r\n\r\n") {
-            let responseBody = httpMessage[range.upperBound...]
-            response.body = String(responseBody)
+            responseBody = String(httpMessage[range.upperBound...])
         }
+        
+        let headers = extractHeaders(httpMessage)
+
+        let response = HttpResponse(
+            FullResponse: httpMessage,
+            headers: headers,
+            body: responseBody
+        )
+        
 
         return response
     }
