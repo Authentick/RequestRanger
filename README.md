@@ -8,6 +8,9 @@ _Request Ranger_ is an **HTTP interception proxy** that makes web development a 
 
 💡 **Pro Tip:** We recommend using Firefox for testing since it supports HTTP proxies at the application level.
 
+## 🌐 Beta Version
+For those who are adventurous, you can try out the up-to-date beta version of Request Ranger by joining our TestFlight program. Keep in mind that beta versions may not be as stable as the official releases. To install the beta version, use this link: [https://testflight.apple.com/join/5jIHQkrp](https://testflight.apple.com/join/5jIHQkrp)
+
 ## 🔥 What can I do with Request Ranger?
 _Request Ranger_ is on a mission to become the Swiss army knife for HTTP interception on macOS and iOS. Here are some of the amazing features currently supported:
 
