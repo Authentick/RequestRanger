@@ -49,7 +49,15 @@ class ProxiedHttpResponse: Identifiable, ObservableObject {
     }
 }
 
-class ProxiedHttpRequest : Identifiable, ObservableObject {
+class ProxiedHttpRequest : Identifiable, ObservableObject, Hashable {
+    static func == (lhs: ProxiedHttpRequest, rhs: ProxiedHttpRequest) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        return hasher.combine(id)
+    }
+    
     @Published var id: Int
     var idString: String { String(id) }
     @Published var hostName: String

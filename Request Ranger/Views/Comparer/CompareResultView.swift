@@ -17,7 +17,6 @@ struct CompareResultView: View {
             text2: changed
         )
         
-        
         func getBackgroundColo(diff: Diff) -> Color? {
             switch(diff) {
             case .delete:

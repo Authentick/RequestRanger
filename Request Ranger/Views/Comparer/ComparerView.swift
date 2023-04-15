@@ -15,7 +15,8 @@ struct ComparerView: View {
     @State private var item1SortOrder = [KeyPathComparator(\ComparisonData.CompareEntry.id)]
     @State private var item2SortOrder = [KeyPathComparator(\ComparisonData.CompareEntry.id)]
     @State private var showImport = false
-    
+    @State private var showHelpPopover = false
+
     var body: some View {
         let isValidSelection = item1SelectedEntry.count == 1 && item2SelectedEntry.count == 1 && item1SelectedEntry.first != item2SelectedEntry.first && comparisonData.data.contains(where: {$0.id == item1SelectedEntry.first}) && comparisonData.data.contains(where: {$0.id == item2SelectedEntry.first})
         
@@ -35,12 +36,6 @@ struct ComparerView: View {
         
         return NavigationStack {
             Form {
-                Section {
-                    Text("Compare and analyze text strings to identify differences and similarities. Simply input two strings and let \(appName) do the work for you.")
-                        .fontWeight(.light)
-                        .padding(.bottom)
-                }
-                
                 Section("Item 1") {
                     VStack(alignment: .leading) {
                         HStack(alignment: .top) {
@@ -133,16 +128,31 @@ struct ComparerView: View {
                 }
                 .disabled(!isValidSelection)
                 .buttonStyle(.borderedProminent)
-                if(!isValidSelection) {
-                    Label("Select two different elements from the lists to enable the comparison mode.", systemImage: "info.circle")
-                        .fontWeight(.light)
-                }
-                
             }
 #if os(macOS)
             .padding()
 #endif
-            .toolbar() {
+            .toolbar {
+                ToolbarItem {
+                    Button {
+                        showHelpPopover = true
+                    } label: {
+                        Label("Help", systemImage: "questionmark.circle")
+                    }
+                    .popover(isPresented: $showHelpPopover) {
+                        HelpPopoverView(header: "Comparer Help", content: """
+This powerful tool allows you to analyze and compare multiple text strings, identifying both differences and similarities with ease.
+
+To get started, simply follow these steps:
+
+1. Input multiple text strings into the designated area.
+2. From the list of entered texts, select the first item (Item 1) you would like to compare.
+3. Choose a second item (Item 2) from the list to compare with Item 1.
+
+The Compare Feature will then work its magic, providing you with a comprehensive comparison of the selected items.
+""", isPresented: $showHelpPopover)
+                    }
+                }
                 ToolbarItem() {
                     Button(role: .destructive) {
                         comparisonData.data = []

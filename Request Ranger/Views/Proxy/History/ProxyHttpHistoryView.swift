@@ -1,5 +1,4 @@
 import SwiftUI
-import HttpParser
 
 struct ProxyHttpHistoryView: View {
     @State var selectedRequest: ProxiedHttpRequest.ID? = nil
@@ -8,120 +7,8 @@ struct ProxyHttpHistoryView: View {
     @State private var searchText = ""
     @Binding var isProxyRunning: Bool
     
-    func GetRequestText() -> String {
-        if(selectedRequest != nil) {
-            guard let request = proxyData.httpRequests.first(where: {$0.id == selectedRequest}) else {
-                return ""
-            }
-            
-            return request.rawRequest
-        }
-        
-        return ""
-    }
-    
-    func GetResponseText() -> String {
-        if(selectedRequest != nil) {
-            guard let requestBody = proxyData.httpRequests.first(where: {$0.id == selectedRequest})?.response?.rawResponse else {
-                return ""
-            }
-            
-            return requestBody
-        }
-        
-        return ""
-    }
-    
-    private func GetResponseBody(request: ProxiedHttpRequest?) -> String {
-        let responseBody: String = request?.response?.rawResponse ?? ""
-        return (HttpParser()).parseResponse(responseBody).body
-    }
-    
     var historyView: some View {
-        return Group {
-            Table(of: ProxiedHttpRequest.self, selection: $selectedRequest, sortOrder: $sortOrder) {
-                TableColumn("#", value: \.idString)
-                TableColumn("Host", value: \.hostName)
-                TableColumn("Method", value: \.methodString)
-                TableColumn("Path", value: \.path)
-            } rows: {
-                ForEach(proxyData.httpRequests) { request in
-                    if(searchText == "" || (request.rawRequest.contains(searchText) || (request.response != nil && request.response!.rawResponse.contains(searchText)))) {
-                        TableRow(request)
-                            .contextMenu {
-                                Button {
-                                    if let idx = proxyData.httpRequests.firstIndex(where: {$0.id == request.id}) {
-                                        if(selectedRequest == request.id) {
-                                            selectedRequest = nil
-                                        }
-                                        proxyData.httpRequests.remove(at: idx)
-                                    }
-                                } label: {
-                                    Text("Delete")
-                                }
-                            }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onChange(of: sortOrder) {
-                proxyData.httpRequests.sort(using: $0)
-            }
-            
-            ConditionalSplitView({
-                VStack {
-                    TabView {
-                        let requestText = GetRequestText()
-                        
-                        RawRequestTextViewerView(text: Binding.constant(requestText))
-                            .tabItem {
-                                Label("Raw", systemImage: "arrowshape.turn.up.right.fill")
-                            }
-                        
-                        let headers = Binding.constant(proxyData.httpRequests.first(where: { $0.id == selectedRequest })?.headers ?? [:])
-                        HeadersView(headers: headers)
-                            .tabItem {
-                                Label("Headers", systemImage: "pencil")
-                            }
-                    }
-                }},{
-                    VStack {
-                        TabView {
-                            let selectedElement = proxyData.httpRequests.first(where: {$0.id == selectedRequest})
-                            RawRequestTextViewerView(text: Binding.constant(selectedElement?.response?.rawResponse ?? ""))
-                                .tabItem {
-                                    Label("Raw", systemImage: "arrowshape.turn.up.right.fill")
-                                }
-                            
-                            if let response = selectedElement?.response {
-                                let headers = Binding.constant(response.headers)
-                                HeadersView(headers: headers)
-                                    .tabItem {
-                                        Label("Headers", systemImage: "pencil")
-                                    }
-                            }
-                            
-                            if let response = selectedElement?.response {
-                                let contentType = response.headers["content-type"]
-                                if(contentType != nil && contentType!.contains("text/html")) {
-                                    var responseBody: String = GetResponseBody(request: selectedElement)
-                                    
-                                    SwiftUIWebView(
-                                        body: Binding.constant(responseBody),
-                                        requestUrl: Binding.constant("http://" + (selectedElement?.hostName ?? "") + (selectedElement?.path ?? ""))
-                                    )
-                                    .tabItem {
-                                        Label("HTML", systemImage: "photo.on.rectangle")
-                                    }
-                                }
-                            }
-                            
-                            
-                        }
-                    }}
-            )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
+        SelectableRequestTable(selectedRequest: $selectedRequest, proxyData: proxyData, searchText: $searchText)
     }
     
     var body: some View {

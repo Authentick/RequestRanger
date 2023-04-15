@@ -117,15 +117,13 @@ struct DecodeView: View {
     
     @State var decodeTextViews: [DecoderTextView] = []
     @State var clearAllClicked = false
-    
+    @State private var showHelpPopover = false
+
     func addNewDecodeReference(text: String, position: Int) {
         decodeTextViews.insert(DecoderTextView(DecodeViewReference: self, Position: position+1, textInput: text, clearAllClicked: $clearAllClicked), at: position)
     }
     
     var body: some View {
-        let text = Text("Convert your data between various formats such as Base64, URL encoding, and HTML entities with just a few clicks.")
-            .fontWeight(.light)
-        
         let initialTextView = DecoderTextView(DecodeViewReference: self, Position: 0, clearAllClicked: $clearAllClicked)
         
         
@@ -134,7 +132,6 @@ struct DecodeView: View {
 #if os(macOS)
             ScrollView {
                 VStack(alignment: .leading) {
-                    text.padding([.leading, .trailing, .top])
                     initialTextView
                     ForEach(decodeTextViews) { view in
                         Divider()
@@ -144,7 +141,6 @@ struct DecodeView: View {
             }
 #else
             Form {
-                text
                 Section() {
                     initialTextView
                 }
@@ -157,6 +153,25 @@ struct DecodeView: View {
 #endif
         }
         .toolbar() {
+            ToolbarItem {
+                Button {
+                    showHelpPopover = true
+                } label: {
+                    Label("Help", systemImage: "questionmark.circle")
+                }
+                .popover(isPresented: $showHelpPopover) {
+                    HelpPopoverView(header: "Encoder Help", content: """
+                This tool allows you to encode and decode text using Base64, URL, and HTML encoding methods.
+
+                To get started, enter the text you want to encode or decode in the text box. Then, click the "Encode" or "Decode" button and select the desired encoding or decoding method.
+                
+                Encoded or decoded text will appear in a new section below the original text. You can then copy the result to your clipboard by clicking the "Copy" button.
+                
+                To clear all the text, click the "Clear" button in the top toolbar.
+                """, isPresented: $showHelpPopover)
+                }
+            }
+            
             ToolbarItem(placement: .primaryAction) {
                 Button("Clear") {
                     clearAllClicked = !clearAllClicked

@@ -8,7 +8,7 @@ struct ContentView: View {
     @Binding var showingImporter: Bool
     @Binding var requestsPendingApproval: [ProxyHandler]
     @Binding var isInterceptEnabled: Bool
-
+    
     let appName = Bundle.main.infoDictionary!["CFBundleDisplayName"] as! String
     
     var body: some View {
@@ -22,6 +22,11 @@ struct ContentView: View {
                         Label("Intercept", systemImage: "pause.circle")
                     }
                 }
+                Section("Analysis") {
+                    NavigationLink(value: "sitemap") {
+                        Label("Sitemap", systemImage: "list.bullet.indent")
+                    }
+                }
                 Section("Tools") {
                     NavigationLink(value: "decode") {
                         Label("Encoder", systemImage: "barcode")
@@ -29,7 +34,6 @@ struct ContentView: View {
                     NavigationLink(value: "compare") {
                         Label("Comparer", systemImage: "doc.on.doc")
                     }
-                    
                 }
             }
             .navigationTitle(appName)
@@ -72,6 +76,8 @@ struct ContentView: View {
                 DecodeView()
             } else if(selectedMainMenuEntry == "compare") {
                 ComparerView()
+            } else if(selectedMainMenuEntry == "sitemap") {
+                SiteMapView(proxyData: proxyData)
             }
         }.onAppear() {
 #if os(iOS)
