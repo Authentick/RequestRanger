@@ -9,7 +9,8 @@ struct ComparerView: View {
 #else
     private let isCompact = false
 #endif
-    @EnvironmentObject var comparisonData: ComparisonData
+    @EnvironmentObject var appState: AppState
+    @State var comparisonData: ComparisonData = ComparisonData()
     @State var item1SelectedEntry = Set<ComparisonData.CompareEntry.ID>()
     @State var item2SelectedEntry = Set<ComparisonData.CompareEntry.ID>()
     @State private var item1SortOrder = [KeyPathComparator(\ComparisonData.CompareEntry.id)]
@@ -18,15 +19,15 @@ struct ComparerView: View {
     @State private var showHelpPopover = false
 
     var body: some View {
-        let isValidSelection = item1SelectedEntry.count == 1 && item2SelectedEntry.count == 1 && item1SelectedEntry.first != item2SelectedEntry.first && comparisonData.data.contains(where: {$0.id == item1SelectedEntry.first}) && comparisonData.data.contains(where: {$0.id == item2SelectedEntry.first})
+        let isValidSelection = item1SelectedEntry.count == 1 && item2SelectedEntry.count == 1 && item1SelectedEntry.first != item2SelectedEntry.first && appState.comparisonListData.data.contains(where: {$0.id == item1SelectedEntry.first}) && appState.comparisonListData.data.contains(where: {$0.id == item2SelectedEntry.first})
         
         var originalText: String = ""
         var modifiedText: String = ""
         
         if let selectedItem1Id = item1SelectedEntry.first {
             if let selectedItem2Id = item2SelectedEntry.first {
-                originalText = comparisonData.data.first(where: {$0.id == selectedItem1Id})?.value ?? ""
-                modifiedText = comparisonData.data.first(where: {$0.id == selectedItem2Id})?.value ?? ""
+                originalText = appState.comparisonListData.data.first(where: {$0.id == selectedItem1Id})?.value ?? ""
+                modifiedText = appState.comparisonListData.data.first(where: {$0.id == selectedItem2Id})?.value ?? ""
             }
         }
         
@@ -41,7 +42,7 @@ struct ComparerView: View {
                         HStack(alignment: .top) {
                             
                             HStack(alignment: .top) {
-                                Table(comparisonData.data, selection: $item1SelectedEntry, sortOrder: $item1SortOrder) {
+                                Table(appState.comparisonListData.data, selection: $item1SelectedEntry, sortOrder: $item1SortOrder) {
                                     TableColumn("#", value: \.id) { element in
                                         HStack {
                                             Text(String(element.id))
@@ -59,7 +60,7 @@ struct ComparerView: View {
                                 }
                                 .frame(minHeight: 200)
                                 .onChange(of: item1SortOrder) {
-                                    comparisonData.data.sort(using: $0)
+                                    appState.comparisonListData.data.sort(using: $0)
                                 }
                                 
                                 Spacer()
@@ -86,7 +87,7 @@ struct ComparerView: View {
                         
                         Button(role: .destructive) {
                             item1SelectedEntry.forEach { id in
-                                comparisonData.data.removeAll(where: {$0.id == id})
+                                appState.comparisonListData.data.removeAll(where: {$0.id == id})
                                 item2SelectedEntry.remove(id)
                             }
                             item1SelectedEntry = []
@@ -101,7 +102,7 @@ struct ComparerView: View {
                 }
                 
                 Section("Item 2") {
-                    Table(comparisonData.data, selection: $item2SelectedEntry, sortOrder: $item2SortOrder) {
+                    Table(appState.comparisonListData.data, selection: $item2SelectedEntry, sortOrder: $item2SortOrder) {
                         TableColumn("#", value: \.id) { element in
                             HStack {
                                 Text(String(element.id))
@@ -118,7 +119,7 @@ struct ComparerView: View {
                     }
                     
                     .onChange(of: item2SortOrder) {
-                        comparisonData.data.sort(using: $0)
+                        appState.comparisonListData.data.sort(using: $0)
                     }
                     .frame(minHeight: 200)
                 }
@@ -155,7 +156,7 @@ The Compare Feature will then work its magic, providing you with a comprehensive
                 }
                 ToolbarItem() {
                     Button(role: .destructive) {
-                        comparisonData.data = []
+                        appState.comparisonListData.data = []
                     } label: {
                         Text("Clear")
                             .frame(maxWidth: .infinity)
@@ -189,6 +190,6 @@ The Compare Feature will then work its magic, providing you with a comprehensive
 
 struct ComparerView_Previews: PreviewProvider {
     static var previews: some View {
-        ComparerView().environmentObject(ComparisonData())
+        ComparerView().environmentObject(AppState())
     }
 }

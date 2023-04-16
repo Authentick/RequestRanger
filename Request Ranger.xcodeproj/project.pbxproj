@@ -24,6 +24,8 @@
 		FB65094829D5092000E00674 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB65094729D5092000E00674 /* SettingsView.swift */; };
 		FB65094A29D5E55700E00674 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB65094929D5E55700E00674 /* Settings.swift */; };
 		FB65095729D6352200E00674 /* HttpParser in Frameworks */ = {isa = PBXBuildFile; productRef = FB65095629D6352200E00674 /* HttpParser */; };
+		FB731E3229EC387D0036F189 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = FB731E3129EC387D0036F189 /* OrderedCollections */; };
+		FB731E3429EC4E610036F189 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB731E3329EC4E610036F189 /* AppState.swift */; };
 		FB7962B129E71FF500997994 /* ConditionalSplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB7962B029E71FF500997994 /* ConditionalSplitView.swift */; };
 		FBD4CEF229E600E0008EB5E2 /* ProxyHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD4CEF129E600E0008EB5E2 /* ProxyHandler.swift */; };
 		FBD4CEFC29E60639008EB5E2 /* NIO in Frameworks */ = {isa = PBXBuildFile; productRef = FBD4CEFB29E60639008EB5E2 /* NIO */; };
@@ -76,6 +78,7 @@
 		FB65094729D5092000E00674 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		FB65094929D5E55700E00674 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		FB65095529D6350400E00674 /* HttpParser */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HttpParser; sourceTree = "<group>"; };
+		FB731E3329EC4E610036F189 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		FB7962B029E71FF500997994 /* ConditionalSplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalSplitView.swift; sourceTree = "<group>"; };
 		FB7BE55429DA0A9700DF17A6 /* HTMLEntities */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HTMLEntities; sourceTree = "<group>"; };
 		FBB3E34129E3451C00529FA3 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -106,6 +109,7 @@
 				FB65095729D6352200E00674 /* HttpParser in Frameworks */,
 				FBD4CEFE29E60639008EB5E2 /* NIOHTTP1 in Frameworks */,
 				FBD4E93129DA44A100AB08B3 /* SwiftDiff in Frameworks */,
+				FB731E3229EC387D0036F189 /* OrderedCollections in Frameworks */,
 				FBD4CF0029E60639008EB5E2 /* NIOTLS in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -162,11 +166,12 @@
 				FB2BF91C29CF4CE3006FA9C3 /* Networking */,
 				FB2BF90829CF3585006FA9C3 /* Views */,
 				FB2BF8F929CF335D006FA9C3 /* RequestRangerApp.swift */,
+				FB731E3329EC4E610036F189 /* AppState.swift */,
 				FB2BF8FB29CF335D006FA9C3 /* ContentView.swift */,
+				FB65094929D5E55700E00674 /* Settings.swift */,
 				FB2BF8FD29CF335E006FA9C3 /* Assets.xcassets */,
 				FBB674F829D9E40D00961338 /* Request Ranger.entitlements */,
 				FB2BF8FF29CF335E006FA9C3 /* Preview Content */,
-				FB65094929D5E55700E00674 /* Settings.swift */,
 			);
 			path = "Request Ranger";
 			sourceTree = "<group>";
@@ -307,6 +312,7 @@
 				FBD4CEFD29E60639008EB5E2 /* NIOHTTP1 */,
 				FBD4CEFF29E60639008EB5E2 /* NIOTLS */,
 				FBD4CF0229E609E3008EB5E2 /* Logging */,
+				FB731E3129EC387D0036F189 /* OrderedCollections */,
 			);
 			productName = SuperProxy;
 			productReference = FB2BF8F629CF335D006FA9C3 /* Request Ranger.app */;
@@ -339,6 +345,7 @@
 			packageReferences = (
 				FBD4CEFA29E60639008EB5E2 /* XCRemoteSwiftPackageReference "swift-nio" */,
 				FBD4CF0129E609E3008EB5E2 /* XCRemoteSwiftPackageReference "swift-log" */,
+				FB731E3029EC387D0036F189 /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			productRefGroup = FB2BF8F729CF335D006FA9C3 /* Products */;
 			projectDirPath = "";
@@ -387,6 +394,7 @@
 				FB03F27329DF08E2009BF572 /* ProxyInterceptView.swift in Sources */,
 				FBD4E93329DAD46200AB08B3 /* CompareResultView.swift in Sources */,
 				FB2BF92129CF50E8006FA9C3 /* RequestData.swift in Sources */,
+				FB731E3429EC4E610036F189 /* AppState.swift in Sources */,
 				FBFD02F929EAFDCF00E02A11 /* SitemapView.swift in Sources */,
 				FB366E5029D8844400E2D087 /* SwiftUIWebView.swift in Sources */,
 				FB65094829D5092000E00674 /* SettingsView.swift in Sources */,
@@ -613,6 +621,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		FB731E3029EC387D0036F189 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		FBD4CEFA29E60639008EB5E2 /* XCRemoteSwiftPackageReference "swift-nio" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-nio.git";
@@ -635,6 +651,11 @@
 		FB65095629D6352200E00674 /* HttpParser */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = HttpParser;
+		};
+		FB731E3129EC387D0036F189 /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FB731E3029EC387D0036F189 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
 		};
 		FBD4CEFB29E60639008EB5E2 /* NIO */ = {
 			isa = XCSwiftPackageProductDependency;

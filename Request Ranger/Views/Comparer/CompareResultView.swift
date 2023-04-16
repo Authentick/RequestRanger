@@ -49,22 +49,15 @@ struct CompareResultView: View {
         }
         
         return VStack(alignment: .leading) {
-            VStack(alignment: .leading) {
-                Text("Below, you'll find a detailed analysis of the input strings, highlighting the differences and similarities.")
-                    .fontWeight(.light)
-                    .padding()
-                Spacer()
-                
-                ScrollView {
-                    VStack {
-                        Text(mergedAttributedString)
-                            .textSelection(.enabled)
-                            .padding(5.0)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            ScrollView {
+                VStack {
+                    Text(mergedAttributedString)
+                        .textSelection(.enabled)
+                        .padding(5.0)
                 }
-                .background(.background)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .background(.background)
             
             HStack(alignment: .center) {
                 Text("Added")

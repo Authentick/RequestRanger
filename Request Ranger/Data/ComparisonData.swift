@@ -1,7 +1,7 @@
 import Foundation
 
-class ComparisonData: ObservableObject {
-    @Published var data: [CompareEntry] = []
+struct ComparisonData {
+    var data: [CompareEntry] = []
     
     struct CompareEntry: Identifiable, Hashable {
         let id: Int
@@ -9,4 +9,3 @@ class ComparisonData: ObservableObject {
         var length: Int { value.lengthOfBytes(using: .utf8 ) }
     }
 }
-

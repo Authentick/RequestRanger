@@ -1,55 +1,68 @@
 import SwiftUI
+import OrderedCollections
 
 struct SiteMapView: View {
-    @ObservedObject var proxyData: ProxyData
-    
+    @EnvironmentObject var appState: AppState
+
 #if os(macOS)
     typealias PlatformListStyle = DefaultListStyle
 #else
     typealias PlatformListStyle = GroupedListStyle
 #endif
     
-    private var groupedPaths: Set<URL> {
-        Set(Dictionary(grouping: proxyData.httpRequests, by: { $0.hostName })
-            .flatMap { _, requests in
-                requests.compactMap { URL(string: "https://\($0.hostName)\($0.path)") }
-            })
-    }
-    
     @State private var selectedRequestIds: [Int]?
     @State private var selectedRequestDetail: ProxiedHttpRequest.ID?
     @State private var selectedRequests: [ProxiedHttpRequest] = []
     @State private var selectedUrl: URL?
+    @State private var sitemapNodes: [TreeNode] = []
     
     var body: some View {
-        if(groupedPaths.isEmpty) {
-            VStack(alignment: .center) {
-                Text("No requests detected.")
-                    .font(.title)
-                    .padding(.bottom, 8)
-                Text("Please run the proxy or import an existing project.")
-                    .font(.body)
-            }
-            .navigationTitle("Sitemap")
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            
+        Group {
+            if(sitemapNodes.isEmpty) {
+                VStack(alignment: .center) {
+                    Text("No requests detected.")
+                        .font(.title)
+                        .padding(.bottom, 8)
+                    Text("Please run the proxy or import an existing project.")
+                        .font(.body)
+                }
+                .navigationTitle("Sitemap")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                
 #if os(iOS)
-            NavigationStack{
-                siteMapList
-            }
+                NavigationStack{
+                    siteMapList
+                }
 #else
-            HSplitView {
-                siteMapList.frame(minWidth: 200, maxWidth: .infinity)
-                selectableRequestTable.frame(minWidth: 200, maxWidth: .infinity)
-            }
+                HSplitView {
+                    siteMapList.frame(minWidth: 200, maxWidth: .infinity)
+                    selectableRequestTable.frame(minWidth: 200, maxWidth: .infinity)
+                }
 #endif
+            }
+        }
+        .onAppear() {
+            let groupedPaths = Set(Dictionary(grouping: appState.proxyData.httpRequests, by: { $0.hostName })
+                .flatMap { _, requests in
+                    requests.compactMap { URL(string: "https://\($0.hostName)\($0.path)") }
+                })
+            
+            sitemapNodes = urlsToTree(urls: groupedPaths)
+        }
+        .onChange(of: appState.proxyData.httpRequests) { _ in
+            let groupedPaths = Set(Dictionary(grouping: appState.proxyData.httpRequests, by: { $0.hostName })
+                .flatMap { _, requests in
+                    requests.compactMap { URL(string: "https://\($0.hostName)\($0.path)") }
+                })
+            
+            sitemapNodes = urlsToTree(urls: groupedPaths)
         }
     }
     
     private var siteMapList: some View {
         List {
-            OutlineGroup(urlsToTree(urls: groupedPaths), id: \.id, children: \.children) { item in
+            OutlineGroup(sitemapNodes, id: \.id, children: \.children) { item in
                 let isSelected = (item.url == selectedUrl)
 #if os(iOS)
                 NavigationLink(
@@ -66,11 +79,11 @@ struct SiteMapView: View {
 #else
                 Text(item.name)
                     .fontWeight(isSelected ? .bold : nil)
-                    .background(isSelected ? Color.accentColor : nil)
+                    .background(isSelected ? Color.accentColor.opacity(0.5) : nil)
                     .onTapGesture {
                         selectedUrl = item.url
                         
-                        selectedRequests = proxyData.httpRequests.filter { request in
+                        selectedRequests = appState.proxyData.httpRequests.filter { request in
                             guard let requestUrl = URL(string: "https://\(request.hostName)\(request.path)") else {
                                 return false
                             }
@@ -84,7 +97,7 @@ struct SiteMapView: View {
 #if os(iOS)
         .onChange(of: selectedUrl) { url in
             if let url = url {
-                selectedRequests = proxyData.httpRequests.filter { request in
+                selectedRequests = appState.proxyData.httpRequests.filter { request in
                     guard let requestUrl = URL(string: "https://\(request.hostName)\(request.path)") else {
                         return false
                     }
@@ -100,13 +113,13 @@ struct SiteMapView: View {
     
     struct SelectableRequestTableView: View, Hashable {
         @Binding var selectedRequest: ProxiedHttpRequest.ID?
-        var proxyData: ProxyData
+        @EnvironmentObject var appState: AppState
         @Binding var filteredRequestIds: [Int]?
         
         var body: some View {
             SelectableRequestTable(
                 selectedRequest: $selectedRequest,
-                proxyData: proxyData,
+                appState: appState,
                 filteredRequestIds: $filteredRequestIds
             )
         }
@@ -126,7 +139,7 @@ struct SiteMapView: View {
     private var selectableRequestTable: some View {
         SelectableRequestTable(
             selectedRequest: $selectedRequestDetail,
-            proxyData: proxyData,
+            appState: appState,
             filteredRequestIds: $selectedRequestIds
         )
     }
@@ -154,22 +167,23 @@ struct SiteMapView: View {
     }
     
     func urlsToTree(urls: Set<URL>, separator: Character = "/") -> [TreeNode] {
-        let rootNode: TreeNode? = urls
+        let rootNodesByDomain = urls
             .compactMap { $0.host }
-            .reduce(into: [:]) { dict, host in dict[host] = TreeNode(name: host, url: URL(string: "http://" + host)!) }
-            .values
-            .first
+            .sorted(by: <)
+            .reduce(into: OrderedDictionary<String, TreeNode>()) { dict, host in
+                if dict[host] == nil {
+                    dict[host] = TreeNode(name: host, url: URL(string: "http://" + host)!)
+                }
+            }
         
-        guard let initialNode = rootNode else {
-            return []
-        }
-        
-        var currentNode: TreeNode = initialNode
         for url in urls {
-            guard !url.path.isEmpty else {
+            guard let host = url.host,
+                  !url.path.isEmpty,
+                  let rootNode = rootNodesByDomain[host] else {
                 continue
             }
             
+            var currentNode: TreeNode = rootNode
             let components = url.path.split(separator: separator)
             
             for component in components {
@@ -179,7 +193,7 @@ struct SiteMapView: View {
                     let newNode = TreeNode(name: String(component), url: url)
                     currentNode.children = (currentNode.children ?? []) + [newNode]
                     currentNode.children = currentNode.children!.sorted(by: { $0.name < $1.name })
-                    if(currentNode.children!.count != 0) {
+                    if currentNode.children!.count != 0 {
                         let parentUrl = newNode.url
                         let newUrl = parentUrl.deletingLastPathComponent()
                         currentNode.url = newUrl
@@ -187,17 +201,15 @@ struct SiteMapView: View {
                     currentNode = newNode
                 }
             }
-            
-            currentNode = initialNode
         }
         
-        return [initialNode]
+        return Array(rootNodesByDomain.values)
     }
 }
 
 struct SiteMapView_Previews: PreviewProvider {
     static var previews: some View {
-        let proxyData = ProxyData()
+        var proxyData = ProxyData()
         
         let sampleRequests: [ProxiedHttpRequest] = [
             ProxiedHttpRequest(
@@ -319,8 +331,10 @@ Connection: close
         ]
         
         proxyData.httpRequests = sampleRequests
+        let appState = AppState()
+        appState.proxyData = proxyData
         
-        
-        return SiteMapView(proxyData: proxyData)
+        return SiteMapView()
+            .environmentObject(appState)
     }
 }

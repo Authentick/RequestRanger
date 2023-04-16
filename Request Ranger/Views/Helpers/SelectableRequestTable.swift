@@ -3,7 +3,7 @@ import HttpParser
 
 struct SelectableRequestTable: View {
     @Binding var selectedRequest: ProxiedHttpRequest.ID?
-    @ObservedObject var proxyData: ProxyData
+    @ObservedObject var appState: AppState
     @State private var sortOrder = [KeyPathComparator(\ProxiedHttpRequest.id)]
     @Binding var searchText: String
     @State private var filteredRequests: [ProxiedHttpRequest] = []
@@ -17,22 +17,22 @@ struct SelectableRequestTable: View {
 #endif
     
     init(selectedRequest: Binding<ProxiedHttpRequest.ID?>,
-         proxyData: ProxyData,
+         appState: AppState,
          searchText: Binding<String> = .constant(""),
          filteredRequestIds: Binding<[Int]?> = Binding.constant(nil)) {
         self._selectedRequest = selectedRequest
         self._searchText = searchText
-        self.proxyData = proxyData
+        self.appState = appState
         self._filteredRequestIds = filteredRequestIds
     }
     
     private func updateFilteredRequests() {
         if let filteredIds = filteredRequestIds {
-            filteredRequests = proxyData.httpRequests.filter { request in
+            filteredRequests = appState.proxyData.httpRequests.filter { request in
                 filteredIds.contains(request.id)
             }
         } else {
-            filteredRequests = proxyData.httpRequests
+            filteredRequests = appState.proxyData.httpRequests
         }
     }
     
@@ -60,11 +60,11 @@ struct SelectableRequestTable: View {
                         TableRow(request)
                             .contextMenu {
                                 Button {
-                                    if let idx = proxyData.httpRequests.firstIndex(where: {$0.id == request.id}) {
+                                    if let idx = appState.proxyData.httpRequests.firstIndex(where: {$0.id == request.id}) {
                                         if(selectedRequest == request.id) {
                                             selectedRequest = nil
                                         }
-                                        proxyData.httpRequests.remove(at: idx)
+                                        appState.proxyData.httpRequests.remove(at: idx)
                                     }
                                 } label: {
                                     Text("Delete")
@@ -74,7 +74,7 @@ struct SelectableRequestTable: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onChange(of: proxyData.httpRequests) { _ in
+            .onChange(of: appState.proxyData.httpRequests) { _ in
                 updateFilteredRequests()
             }
             .onChange(of: sortOrder) {
@@ -190,10 +190,12 @@ Cache-Control: no-cache
 """,
             response: response
         )
-        let proxyData = ProxyData()
+        var proxyData = ProxyData()
         proxyData.httpRequests.append(proxyRequest)
+        let appState = AppState()
+        appState.proxyData = proxyData
         
-        return SelectableRequestTable(selectedRequest: .constant(proxyRequest.id), proxyData: proxyData)
+        return SelectableRequestTable(selectedRequest: .constant(proxyRequest.id), appState: appState)
     }
 }
 

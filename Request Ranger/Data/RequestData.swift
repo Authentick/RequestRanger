@@ -87,6 +87,6 @@ class ProxiedHttpRequest : Identifiable, ObservableObject, Hashable {
     }
 }
 
-class ProxyData: ObservableObject {
-    @Published var httpRequests: Array<ProxiedHttpRequest> = []
+struct ProxyData {
+    var httpRequests: [ProxiedHttpRequest] = []
 }

@@ -1,9 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @ObservedObject var proxyData: ProxyData
+    @EnvironmentObject var appState: AppState
     @State private var selectedMainMenuEntry: String?
-    @Binding var isProxyRunning: Bool
     @Binding var showingExporter: Bool
     @Binding var showingImporter: Bool
     @Binding var requestsPendingApproval: [ProxyHandler]
@@ -66,7 +65,7 @@ struct ContentView: View {
             
         } detail: {
             if(selectedMainMenuEntry == "history") {
-                ProxyHttpHistoryView(proxyData: proxyData, isProxyRunning: $isProxyRunning)
+                ProxyHttpHistoryView(appState: appState)
             } else if(selectedMainMenuEntry == "intercept") {
                 ProxyInterceptView(
                     isInterceptEnabled: $isInterceptEnabled,
@@ -77,7 +76,7 @@ struct ContentView: View {
             } else if(selectedMainMenuEntry == "compare") {
                 ComparerView()
             } else if(selectedMainMenuEntry == "sitemap") {
-                SiteMapView(proxyData: proxyData)
+                SiteMapView()
             }
         }.onAppear() {
 #if os(iOS)
@@ -94,12 +93,10 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(
-            proxyData: ProxyData(),
-            isProxyRunning: Binding.constant(false),
             showingExporter: Binding.constant(false),
             showingImporter: Binding.constant(false),
             requestsPendingApproval: Binding.constant([]),
             isInterceptEnabled: Binding.constant(false)
-        )
+        ).environmentObject(AppState())
     }
 }

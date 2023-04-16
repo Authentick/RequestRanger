@@ -3,12 +3,11 @@ import SwiftUI
 struct ProxyHttpHistoryView: View {
     @State var selectedRequest: ProxiedHttpRequest.ID? = nil
     @State private var sortOrder = [KeyPathComparator(\ProxiedHttpRequest.id)]
-    @ObservedObject var proxyData: ProxyData
+    @ObservedObject var appState: AppState
     @State private var searchText = ""
-    @Binding var isProxyRunning: Bool
     
     var historyView: some View {
-        SelectableRequestTable(selectedRequest: $selectedRequest, proxyData: proxyData, searchText: $searchText)
+        SelectableRequestTable(selectedRequest: $selectedRequest, appState: appState, searchText: $searchText)
     }
     
     var body: some View {
@@ -23,11 +22,11 @@ struct ProxyHttpHistoryView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                let text = isProxyRunning ? "Stop Proxy" : "Start Proxy"
-                let systemImage = isProxyRunning ? "pause" : "play"
+                let text = appState.isProxyRunning ? "Stop Proxy" : "Start Proxy"
+                let systemImage = appState.isProxyRunning ? "pause" : "play"
                 
                 Button(action: {
-                    NotificationCenter.default.post(name: .proxyRunCommand, object: !isProxyRunning)
+                    NotificationCenter.default.post(name: .proxyRunCommand, object: !appState.isProxyRunning)
                 }, label: {
                     Label(text, systemImage: systemImage)
                         .labelStyle(.titleAndIcon)
@@ -36,7 +35,7 @@ struct ProxyHttpHistoryView: View {
             
             ToolbarItem {
                 Button(action: {
-                    proxyData.httpRequests.removeAll()
+                    appState.proxyData.httpRequests.removeAll()
                 }, label: {
                     Label("Delete all", systemImage: "trash")
                 })
@@ -93,8 +92,11 @@ Cache-Control: no-cache
 """,
             response: response
         )
-        let proxyData = ProxyData()
+        var proxyData = ProxyData()
         proxyData.httpRequests.append(proxyRequest)
-        return ProxyHttpHistoryView(selectedRequest: 1, proxyData: proxyData, isProxyRunning: Binding.constant(false))
+        let appState = AppState()
+        appState.proxyData = proxyData
+        
+        return ProxyHttpHistoryView(selectedRequest: 1, appState: appState)
     }
 }
