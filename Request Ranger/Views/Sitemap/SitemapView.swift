@@ -68,7 +68,6 @@ struct SiteMapView: View {
                 NavigationLink(
                     destination: SelectableRequestTableView(
                         selectedRequest: $selectedRequestDetail,
-                        proxyData: proxyData,
                         filteredRequestIds: $selectedRequestIds
                     ).navigationTitle("Requests for " + item.name),
                     tag: item.url,
