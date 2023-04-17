@@ -1,4 +1,5 @@
 import Foundation
+import NIOHTTP1
 import NIOCore
 import NIOPosix
 import Logging
@@ -44,16 +45,21 @@ class AppState: ObservableObject {
     private func startNioServer() {
         let logger = Logger(label: "net.authentick.requestranger")
         
-        // Initialize the event loop group for the server
         serverGroup = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
         
+        guard let serverGroup else {
+            fatalError("Server group should be initialized but isn't")
+        }
+        
         // Create a server bootstrap
-        let bootstrap = ServerBootstrap(group: serverGroup!)
+        let bootstrap = ServerBootstrap(group: serverGroup)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .childChannelInitializer { channel in
-                channel.pipeline.configureHTTPServerPipeline(withErrorHandling: true).flatMap {
-                    channel.pipeline.addHandler(ProxyHandler(logger: logger))
+                channel.pipeline.addHandler(ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)), name: "HTTPRequestDecoder").flatMap {
+                    channel.pipeline.addHandler(HTTPResponseEncoder(), name: "HTTPResponseEncoder")
+                }.flatMap {
+                    channel.pipeline.addHandler(ProxyHandler(logger: logger, clientBootstrap: ClientBootstrap(group: channel.eventLoop)), name: "ProxyHandler")
                 }
             }
             .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
@@ -70,7 +76,7 @@ class AppState: ObservableObject {
             logger.info("Server started and listening on \(channel.localAddress!)")
         } catch {
             logger.error("Failed to start server: \(error)")
-            try? serverGroup!.syncShutdownGracefully()
+            try? serverGroup.syncShutdownGracefully()
             exit(1)
         }
     }

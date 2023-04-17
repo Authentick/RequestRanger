@@ -6,7 +6,7 @@ import NIOHTTP1
 import Logging
 import Atomics
 
-final class ProxyHandler: ChannelInboundHandler, Equatable {
+final class ProxyHandler: ChannelInboundHandler, RemovableChannelHandler, Equatable {
     static func == (lhs: ProxyHandler, rhs: ProxyHandler) -> Bool {
         return false
     }
@@ -23,15 +23,21 @@ final class ProxyHandler: ChannelInboundHandler, Equatable {
     public var requestParts: [HTTPClientRequestPart] = []
     private var waitingContext: ChannelHandlerContext?
     private var dropRequestCallback: ((ChannelHandlerContext) -> Void)?
+    private var clientBootstrap: ClientBootstrap
     
-    init(logger: Logger) {
+    init(
+        logger: Logger,
+        clientBootstrap: ClientBootstrap
+    ) {
         self.logger = logger
+        self.clientBootstrap = clientBootstrap
     }
     
     var request: HTTPServerRequestPart?
     enum State {
         case idle
         case active(Channel)
+        case connectRequested
     }
     
     private func convertToClientRequestPart(_ reqPart: HTTPServerRequestPart) -> HTTPClientRequestPart {
@@ -72,6 +78,8 @@ final class ProxyHandler: ChannelInboundHandler, Equatable {
             for requestPart in requestParts {
                 sendData(context: context, channel: channel, reqPart: requestPart)
             }
+        case .connectRequested:
+            fatalError("Connect should never call forwardRequest!")
         }
     }
     
@@ -140,36 +148,50 @@ final class ProxyHandler: ChannelInboundHandler, Equatable {
         }
     }
     
-    
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let reqPart = self.unwrapInboundIn(data)
         
+        switch(upgradeState) {
+        case .connectRequested:
+            return
+        default:
+            break
+        }
+        
         switch(reqPart) {
         case .head(var head):
-            // Exfiltrate the request URI
-            let originalURI = URL(string: head.uri)
-            guard let originalURI else {
-                fatalError("Request without ")
+            if head.method == .CONNECT {
+                let pid: Int32 = ProcessInfo.processInfo.processIdentifier
+                print("pid: \(pid)")
+                upgradeState = .connectRequested
+                handleConnectRequest(context: context, head: &head)
+            } else {
+                // Handle non-CONNECT requests as before
+                // Exfiltrate the request URI
+                let originalURI = URL(string: head.uri)
+                guard let originalURI else {
+                    fatalError("Request without ")
+                }
+                print("Original URI: \(originalURI)")
+                
+                // Rewrite the host header and path
+                let newHost = originalURI.host
+                guard let newHost else {
+                    return
+                }
+                targetHost = newHost
+                
+                head.headers.replaceOrAdd(name: "Host", value: newHost)
+                head.uri = originalURI.relativePath
+                
+                // Remove the Accept-Encoding header
+                head.headers.remove(name: "Accept-Encoding")
+                
+                // Forward the request with the updated headers
+                let clientReqPart = HTTPClientRequestPart.head(head)
+                
+                requestParts.append(clientReqPart)
             }
-            print("Original URI: \(originalURI)")
-            
-            // Rewrite the host header and path
-            let newHost = originalURI.host
-            guard let newHost else {
-                return
-            }
-            targetHost = newHost
-            
-            head.headers.replaceOrAdd(name: "Host", value: newHost)
-            head.uri = originalURI.relativePath
-            
-            // Remove the Accept-Encoding header
-            head.headers.remove(name: "Accept-Encoding")
-            
-            // Forward the request with the updated headers
-            let clientReqPart = HTTPClientRequestPart.head(head)
-            
-            requestParts.append(clientReqPart)
         case .body(let buffer):
             let clientReqPart = HTTPClientRequestPart.body(.byteBuffer(buffer))
             requestParts.append(clientReqPart)
@@ -193,6 +215,63 @@ final class ProxyHandler: ChannelInboundHandler, Equatable {
             
         }
     }
+    
+    
+    private func handleConnectRequest(context: ChannelHandlerContext, head: inout HTTPRequestHead) {
+        let uriComponents = head.uri.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        
+        guard let targetHost = uriComponents.first,
+              let targetPort = uriComponents.last,
+              let targetPortInt = Int(targetPort) else {
+            sendHttpResponse(ctx: context, status: .badRequest)
+            context.close(promise: nil)
+            return
+        }
+        
+        let channelFuture = clientBootstrap
+            .connect(host: String(targetHost), port: targetPortInt)
+        print("Opening channel to \(targetHost)")
+        
+        channelFuture.whenSuccess { peerChannel in
+            let (localGlue, peerGlue) = GlueHandler.matchedPair()
+            
+            let responseHead = HTTPResponseHead(version: .http1_1, status: .ok)
+            let responsePart = HTTPServerResponsePart.head(responseHead)
+            context.writeAndFlush(self.wrapOutboundOut(responsePart))
+                .flatMap { _ in
+                    context.pipeline.removeHandler(name: "HTTPResponseEncoder")
+                }
+                .flatMap { _ in
+                    context.pipeline.removeHandler(name: "HTTPRequestDecoder")
+                }
+                .flatMap { _ in
+                    context.channel.pipeline.addHandler(localGlue)
+                }
+                .flatMap { _ in
+                    peerChannel.pipeline.addHandler(peerGlue)
+                }.whenComplete { result in
+                    switch(result) {
+                    case .success():
+                        print("Connection to \(targetHost) was successful")
+                        context.pipeline.removeHandler(self)
+                        
+                    case .failure(let error):
+                        print("Connection to \(targetHost) had error: \(error)")
+                        peerChannel.close(mode: .all, promise: nil)
+                        context.close(promise: nil)
+                    }
+                    
+                }
+        }
+        
+        channelFuture.whenFailure { error in
+            print("Error encountered: \(error)")
+            context.close(promise: nil)
+            self.sendHttpResponse(ctx: context, status: .badGateway)
+            context.fireErrorCaught(error)
+        }
+    }
+    
     
     private func sendHttpResponse(ctx: ChannelHandlerContext, status: HTTPResponseStatus, headers: HTTPHeaders = HTTPHeaders(), body: String = "") {
         var buffer = ctx.channel.allocator.buffer(capacity: body.utf8.count)
@@ -224,16 +303,16 @@ final class ProxyHandler: ChannelInboundHandler, Equatable {
         // Forward the updated request
         forwardRequest(context: waitingContext!, requestParts: updatedRequestParts)
     }
-
+    
     private func parseRawRequest(rawRequest: String) -> [HTTPClientRequestPart] {
         let requestLines = rawRequest.split(separator: "\r\n", omittingEmptySubsequences: false)
         var requestParts: [HTTPClientRequestPart] = []
-
+        
         var headers: HTTPHeaders = HTTPHeaders()
         var method: HTTPMethod = .GET
         var uri: String = ""
         var parsingHeaders = false
-
+        
         for line in requestLines {
             if !parsingHeaders {
                 let requestLine = line.split(separator: " ")
@@ -261,7 +340,7 @@ final class ProxyHandler: ChannelInboundHandler, Equatable {
                 }
             }
         }
-
+        
         return requestParts
     }
     

@@ -1,4 +1,5 @@
 import SwiftUI
+import NIOPosix
 import Logging
 
 struct ProxyInterceptView: View {
@@ -68,7 +69,7 @@ struct ProxyInterceptView_Previews: PreviewProvider {
             requestsPendingApproval: Binding.constant([])
         )
         
-        let proxyHandler = ProxyHandler(logger: Logger(label: "com.example.proxy"))
+        let proxyHandler = ProxyHandler(logger: Logger(label: "com.example.proxy"), clientBootstrap: ClientBootstrap(group: MultiThreadedEventLoopGroup(numberOfThreads: 1)))
         ProxyInterceptView(
             isInterceptEnabled: Binding.constant(false),
             requestsPendingApproval: Binding.constant([proxyHandler])
