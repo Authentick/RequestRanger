@@ -12,14 +12,16 @@ class AppState: ObservableObject {
     @Published var isProxyRunning = false
     @Published var showProxyStartError: Bool = false
     @Published var proxyStartErrorMessage: String? = nil
+
     var serverGroup: MultiThreadedEventLoopGroup? = nil
     
-    init() {
+    static let shared = AppState()
+        
+    private init() {
         NotificationCenter.default.addObserver(self, selector: #selector(handleNewHttpRequest(notification:)), name: .newHttpRequest, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddCompareEntry(notification:)), name: .addCompareEntry, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handlePendingRequest(notification:)), name: .pendingRequest, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleProxyRun(notification:)), name: .proxyRunCommand, object: nil)
-        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleProxyRun(notification:)), name: .proxyRunCommand, object: nil)        
     }
     
     deinit {
@@ -59,7 +61,7 @@ class AppState: ObservableObject {
                 channel.pipeline.addHandler(ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)), name: "HTTPRequestDecoder").flatMap {
                     channel.pipeline.addHandler(HTTPResponseEncoder(), name: "HTTPResponseEncoder")
                 }.flatMap {
-                    channel.pipeline.addHandler(ProxyHandler(logger: logger, clientBootstrap: ClientBootstrap(group: channel.eventLoop)), name: "ProxyHandler")
+                    channel.pipeline.addHandler(ProxyHandler(logger: logger, clientBootstrap: ClientBootstrap(group: channel.eventLoop)       .channelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)), name: "ProxyHandler")
                 }
             }
             .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)

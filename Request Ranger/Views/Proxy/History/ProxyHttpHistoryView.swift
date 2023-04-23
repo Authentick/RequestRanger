@@ -3,7 +3,7 @@ import SwiftUI
 struct ProxyHttpHistoryView: View {
     @State var selectedRequest: ProxiedHttpRequest.ID? = nil
     @State private var sortOrder = [KeyPathComparator(\ProxiedHttpRequest.id)]
-    @ObservedObject var appState: AppState
+    @EnvironmentObject var appState: AppState
     @State private var searchText = ""
     
     var historyView: some View {
@@ -94,9 +94,9 @@ Cache-Control: no-cache
         )
         var proxyData = ProxyData()
         proxyData.httpRequests.append(proxyRequest)
-        let appState = AppState()
+        let appState = AppState.shared
         appState.proxyData = proxyData
         
-        return ProxyHttpHistoryView(selectedRequest: 1, appState: appState)
+        return ProxyHttpHistoryView(selectedRequest: 1).environmentObject(appState)
     }
 }

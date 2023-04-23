@@ -5,8 +5,6 @@ struct ContentView: View {
     @State private var selectedMainMenuEntry: String?
     @Binding var showingExporter: Bool
     @Binding var showingImporter: Bool
-    @Binding var requestsPendingApproval: [ProxyHandler]
-    @Binding var isInterceptEnabled: Bool
     
     let appName = Bundle.main.infoDictionary!["CFBundleDisplayName"] as! String
     
@@ -65,12 +63,9 @@ struct ContentView: View {
             
         } detail: {
             if(selectedMainMenuEntry == "history") {
-                ProxyHttpHistoryView(appState: appState)
+                ProxyHttpHistoryView()
             } else if(selectedMainMenuEntry == "intercept") {
-                ProxyInterceptView(
-                    isInterceptEnabled: $isInterceptEnabled,
-                    requestsPendingApproval: $requestsPendingApproval
-                )
+                ProxyInterceptView()
             } else if(selectedMainMenuEntry == "decode") {
                 DecodeView()
             } else if(selectedMainMenuEntry == "compare") {
@@ -94,9 +89,7 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(
             showingExporter: Binding.constant(false),
-            showingImporter: Binding.constant(false),
-            requestsPendingApproval: Binding.constant([]),
-            isInterceptEnabled: Binding.constant(false)
-        ).environmentObject(AppState())
+            showingImporter: Binding.constant(false)
+        ).environmentObject(AppState.shared)
     }
 }

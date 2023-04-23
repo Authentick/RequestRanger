@@ -192,7 +192,7 @@ Cache-Control: no-cache
         )
         var proxyData = ProxyData()
         proxyData.httpRequests.append(proxyRequest)
-        let appState = AppState()
+        let appState = AppState.shared
         appState.proxyData = proxyData
         
         return SelectableRequestTable(selectedRequest: .constant(proxyRequest.id), appState: appState)

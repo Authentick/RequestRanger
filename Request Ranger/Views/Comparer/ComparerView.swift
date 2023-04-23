@@ -190,6 +190,6 @@ The Compare Feature will then work its magic, providing you with a comprehensive
 
 struct ComparerView_Previews: PreviewProvider {
     static var previews: some View {
-        ComparerView().environmentObject(AppState())
+        ComparerView().environmentObject(AppState.shared)
     }
 }

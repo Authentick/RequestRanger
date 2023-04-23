@@ -3,9 +3,8 @@ import NIOPosix
 import Logging
 
 struct ProxyInterceptView: View {
+    @EnvironmentObject var appState: AppState
     @State private var text: String = ""
-    @Binding var isInterceptEnabled: Bool
-    @Binding var requestsPendingApproval: [ProxyHandler]
     @State private var selectedProxy: ProxyHandler?
     
     var body: some View {
@@ -16,7 +15,7 @@ struct ProxyInterceptView: View {
                     HStack {
                         Button(role: .destructive, action: {
                             selectedProxy?.dropRequest()
-                            requestsPendingApproval.removeFirst()
+                            appState.requestsPendingApproval.removeFirst()
                             selectedProxy = nil
                         }, label: {
                             Label("Drop request", systemImage: "trash")
@@ -25,7 +24,7 @@ struct ProxyInterceptView: View {
 
                         Button {
                             selectedProxy?.approveRequest(rawRequest: text)
-                            requestsPendingApproval.removeFirst()
+                            appState.requestsPendingApproval.removeFirst()
                             selectedProxy = nil
                         } label: {
                             Label("Send", systemImage: "paperplane")
@@ -40,22 +39,22 @@ struct ProxyInterceptView: View {
         }
         .toolbar {
             ToolbarItem {
-                let interceptText = isInterceptEnabled ? "Stop Intercept" : "Start intercept"
+                let interceptText = appState.isInterceptEnabled ? "Stop Intercept" : "Start intercept"
                 Button(interceptText) {
-                    isInterceptEnabled = !isInterceptEnabled
+                    appState.isInterceptEnabled.toggle()
                 }
             }
         }
         .navigationTitle("Intercept request")
         .onAppear() {
-            selectedProxy = requestsPendingApproval.first
-            if let proxy = requestsPendingApproval.first {
+            selectedProxy = appState.requestsPendingApproval.first
+            if let proxy = appState.requestsPendingApproval.first {
                 text = proxy.getRawRequest(requestParts: proxy.requestParts)
             }
         }
-        .onChange(of: requestsPendingApproval) { _ in
-            selectedProxy = requestsPendingApproval.first
-            if let proxy = requestsPendingApproval.first {
+        .onChange(of: appState.requestsPendingApproval) { _ in
+            selectedProxy = appState.requestsPendingApproval.first
+            if let proxy = appState.requestsPendingApproval.first {
                 text = proxy.getRawRequest(requestParts: proxy.requestParts)
             }
         }
@@ -64,15 +63,7 @@ struct ProxyInterceptView: View {
 
 struct ProxyInterceptView_Previews: PreviewProvider {
     static var previews: some View {
-        ProxyInterceptView(
-            isInterceptEnabled: Binding.constant(false),
-            requestsPendingApproval: Binding.constant([])
-        )
-        
-        let proxyHandler = ProxyHandler(logger: Logger(label: "com.example.proxy"), clientBootstrap: ClientBootstrap(group: MultiThreadedEventLoopGroup(numberOfThreads: 1)))
-        ProxyInterceptView(
-            isInterceptEnabled: Binding.constant(false),
-            requestsPendingApproval: Binding.constant([proxyHandler])
-        )
+        ProxyInterceptView()
+            .environmentObject(AppState.shared)
     }
 }

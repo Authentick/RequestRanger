@@ -330,7 +330,7 @@ Connection: close
         ]
         
         proxyData.httpRequests = sampleRequests
-        let appState = AppState()
+        let appState = AppState.shared
         appState.proxyData = proxyData
         
         return SiteMapView()

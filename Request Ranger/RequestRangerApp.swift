@@ -19,14 +19,12 @@ extension Notification.Name {
 
 @main
 struct RequestRangerApp: App {
-    @StateObject var appState = AppState()
+    @StateObject var appState = AppState.shared
     @AppStorage("proxyPort") var proxyListenerPort: Int = AppStorageIntDefaults.proxyPort.rawValue
     @State private var showingExporter = false
     @State private var showingImporter = false
     @State private var showImportAlert: Bool = false
     @State private var selectedFileURL: URL?
-    @State var requestsPendingApproval: [ProxyHandler] = []
-    @State var isInterceptEnabled: Bool = false
     
     private func handleFileSelection(url: URL) {
         selectedFileURL = url
@@ -40,14 +38,9 @@ struct RequestRangerApp: App {
             WindowGroup {
                 ContentView(
                     showingExporter: $showingExporter,
-                    showingImporter: $showingImporter,
-                    requestsPendingApproval: $requestsPendingApproval,
-                    isInterceptEnabled: $isInterceptEnabled
+                    showingImporter: $showingImporter
                 )
                 .environmentObject(appState)
-                .onChange(of: isInterceptEnabled) { state in
-                    InterceptStateManager.shared.setShouldIntercept(state: state)
-                }
                 .onOpenURL { url in
                     selectedFileURL = url
                     showImportAlert = true
