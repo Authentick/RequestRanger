@@ -39,6 +39,7 @@ final class ProxyHandler: ChannelInboundHandler, RemovableChannelHandler, Equata
     private var upgradeState: State = State.idle
     private var logger: Logger
     private var targetHost: String?
+    private var targetPort: Int?
     private static let globalRequestID = ManagedAtomic<Int>(0) // FIXME: should initialize with latest saved ID
     public var requestParts: [HTTPClientRequestPart] = []
     private var waitingContext: ChannelHandlerContext?
@@ -61,7 +62,11 @@ final class ProxyHandler: ChannelInboundHandler, RemovableChannelHandler, Equata
         case connectRequested
     }
     
-    public func forwardRequestForProtocol(httpProtocol: HttpProtocol, port: Int, context: ChannelHandlerContext, requestParts: [HTTPClientRequestPart]) {
+    public func forwardRequestForProtocol(httpProtocol: HttpProtocol, context: ChannelHandlerContext, requestParts: [HTTPClientRequestPart]) {
+        guard let port = self.targetPort else {
+            fatalError("Port was not passed")
+        }
+        
         if httpProtocol == .HTTPS {
             forwardRequestForHttps(context: context, port: port, requestParts: requestParts)
         } else {
@@ -233,7 +238,7 @@ final class ProxyHandler: ChannelInboundHandler, RemovableChannelHandler, Equata
                     }
                 }
             } else {
-                forwardRequestForProtocol(httpProtocol: httpProtocol, port: port, context: context, requestParts: requestParts)
+                forwardRequestForProtocol(httpProtocol: httpProtocol, context: context, requestParts: requestParts)
             }
         }
     }
@@ -258,8 +263,6 @@ final class ProxyHandler: ChannelInboundHandler, RemovableChannelHandler, Equata
         switch(reqPart) {
         case .head(var head):
             if head.method == .CONNECT {
-                let pid: Int32 = ProcessInfo.processInfo.processIdentifier
-                print("pid: \(pid)")
                 upgradeState = .connectRequested
                 handleConnectRequest(context: context, head: &head)
             } else {
@@ -274,7 +277,8 @@ final class ProxyHandler: ChannelInboundHandler, RemovableChannelHandler, Equata
                 guard let newHost else {
                     return
                 }
-                targetHost = newHost
+                self.targetHost = newHost
+                self.targetPort = originalURI.port ?? 80
                 
                 head.headers.replaceOrAdd(name: "Host", value: newHost)
                 head.uri = originalURI.relativePath
@@ -289,10 +293,10 @@ final class ProxyHandler: ChannelInboundHandler, RemovableChannelHandler, Equata
     private func handleConnectRequest(context: ChannelHandlerContext, head: inout HTTPRequestHead) {
         let uriComponents = head.uri.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
         self.targetHost = String(uriComponents.first!)
+        self.targetPort = Int(uriComponents.last!)
         
         guard let targetHost = self.targetHost,
-              let targetPort = uriComponents.last,
-              let targetPortInt = Int(targetPort) else {
+              let _ = self.targetPort else {
             sendHttpResponse(ctx: context, status: .badRequest)
             context.close(promise: nil)
             return
@@ -382,8 +386,8 @@ final class ProxyHandler: ChannelInboundHandler, RemovableChannelHandler, Equata
         let updatedRequestParts = parseRawRequest(rawRequest: rawRequest)
         
         // Forward the updated request
-        // FIXME: don't hardcode
-        forwardRequestForProtocol(httpProtocol: .HTTP, port: 80, context: waitingContext!, requestParts: updatedRequestParts)
+        // FIXME: don't hardcode used protocol
+        forwardRequestForProtocol(httpProtocol: .HTTP, context: waitingContext!, requestParts: updatedRequestParts)
     }
     
     private func parseRawRequest(rawRequest: String) -> [HTTPClientRequestPart] {
