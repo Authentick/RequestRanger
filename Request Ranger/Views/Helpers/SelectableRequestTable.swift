@@ -3,7 +3,7 @@ import HttpParser
 
 struct SelectableRequestTable: View {
     @Binding var selectedRequest: ProxiedHttpRequest.ID?
-    @ObservedObject var appState: AppState
+    @EnvironmentObject var appState: AppState
     @State private var sortOrder = [KeyPathComparator(\ProxiedHttpRequest.id)]
     @Binding var searchText: String
     @State private var filteredRequests: [ProxiedHttpRequest] = []
@@ -17,12 +17,10 @@ struct SelectableRequestTable: View {
 #endif
     
     init(selectedRequest: Binding<ProxiedHttpRequest.ID?>,
-         appState: AppState,
          searchText: Binding<String> = .constant(""),
          filteredRequestIds: Binding<[Int]?> = Binding.constant(nil)) {
         self._selectedRequest = selectedRequest
         self._searchText = searchText
-        self.appState = appState
         self._filteredRequestIds = filteredRequestIds
     }
     
@@ -86,7 +84,7 @@ struct SelectableRequestTable: View {
             .onAppear() {
                 updateFilteredRequests()
             }
-            if let selectedRequest = GetSelectedRequest() {
+            if GetSelectedRequest() != nil {
             
                 ConditionalSplitView({
                     VStack {
@@ -132,6 +130,10 @@ struct SelectableRequestTable: View {
                                         Label("HTML", systemImage: "photo.on.rectangle")
                                     }
                                 }
+                            }
+                        } else {
+                            VStack {
+                                Text("No response received from remote server.")
                             }
                         }
                     }
@@ -195,7 +197,9 @@ Cache-Control: no-cache
         let appState = AppState.shared
         appState.proxyData = proxyData
         
-        return SelectableRequestTable(selectedRequest: .constant(proxyRequest.id), appState: appState)
+        return SelectableRequestTable(
+            selectedRequest: .constant(proxyRequest.id)
+        ).environmentObject(appState)
     }
 }
 

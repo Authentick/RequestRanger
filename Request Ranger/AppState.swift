@@ -12,16 +12,16 @@ class AppState: ObservableObject {
     @Published var isProxyRunning = false
     @Published var showProxyStartError: Bool = false
     @Published var proxyStartErrorMessage: String? = nil
-
+    
     var serverGroup: MultiThreadedEventLoopGroup? = nil
     
     static let shared = AppState()
-        
+    
     private init() {
         NotificationCenter.default.addObserver(self, selector: #selector(handleNewHttpRequest(notification:)), name: .newHttpRequest, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddCompareEntry(notification:)), name: .addCompareEntry, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handlePendingRequest(notification:)), name: .pendingRequest, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleProxyRun(notification:)), name: .proxyRunCommand, object: nil)        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleProxyRun(notification:)), name: .proxyRunCommand, object: nil)
     }
     
     deinit {
@@ -53,16 +53,17 @@ class AppState: ObservableObject {
             fatalError("Server group should be initialized but isn't")
         }
         
-        // Create a server bootstrap
         let bootstrap = ServerBootstrap(group: serverGroup)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .childChannelInitializer { channel in
-                channel.pipeline.addHandler(ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)), name: "HTTPRequestDecoder").flatMap {
-                    channel.pipeline.addHandler(HTTPResponseEncoder(), name: "HTTPResponseEncoder")
-                }.flatMap {
-                    channel.pipeline.addHandler(ProxyHandler(logger: logger, clientBootstrap: ClientBootstrap(group: channel.eventLoop)       .channelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)), name: "ProxyHandler")
-                }
+                channel.pipeline.addHandler(ByteToMessageHandler(HTTPRequestDecoder(leftOverBytesStrategy: .forwardBytes)), name: "HTTPRequestDecoder", position: .last)
+                    .flatMap {
+                        channel.pipeline.addHandler(HTTPResponseEncoder(), name: "HTTPResponseEncoder", position: .last)
+                    }
+                    .flatMap {
+                        channel.pipeline.addHandler(ProxyPipelineHandler(), name: "ProxyPipelineHandler", position: .last)
+                    }
             }
             .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .childChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)

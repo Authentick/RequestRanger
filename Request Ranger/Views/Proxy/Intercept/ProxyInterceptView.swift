@@ -14,7 +14,7 @@ struct ProxyInterceptView: View {
                     TextEditor(text: $text)
                     HStack {
                         Button(role: .destructive, action: {
-                            selectedProxy?.dropRequest()
+                        //    selectedProxy?.dropRequest()
                             appState.requestsPendingApproval.removeFirst()
                             selectedProxy = nil
                         }, label: {
@@ -23,7 +23,7 @@ struct ProxyInterceptView: View {
                         })
 
                         Button {
-                            selectedProxy?.approveRequest(rawRequest: text)
+                        //    selectedProxy?.approveRequest(rawRequest: text)
                             appState.requestsPendingApproval.removeFirst()
                             selectedProxy = nil
                         } label: {
@@ -46,7 +46,7 @@ struct ProxyInterceptView: View {
             }
         }
         .navigationTitle("Intercept request")
-        .onAppear() {
+        /*.onAppear() {
             selectedProxy = appState.requestsPendingApproval.first
             if let proxy = appState.requestsPendingApproval.first {
                 text = proxy.getRawRequest(requestParts: proxy.requestParts)
@@ -57,7 +57,7 @@ struct ProxyInterceptView: View {
             if let proxy = appState.requestsPendingApproval.first {
                 text = proxy.getRawRequest(requestParts: proxy.requestParts)
             }
-        }
+        }*/
     }
 }
 
