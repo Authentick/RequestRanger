@@ -7,7 +7,7 @@ import Logging
 class AppState: ObservableObject {
     @Published var proxyData = ProxyData()
     @Published var comparisonListData = ComparisonData()
-    @Published var requestsPendingApproval: [ProxyHandler] = []
+    @Published var requestsPendingApproval: [RequestInterceptionHandler.PendingRequestNotification] = []
     @Published var isInterceptEnabled: Bool = false
     @Published var isProxyRunning = false
     @Published var showProxyStartError: Bool = false
@@ -103,10 +103,10 @@ class AppState: ObservableObject {
     }
     
     @objc func handlePendingRequest(notification: Notification) {
-        if let proxyHandler = notification.object as? ProxyHandler {
+        if let pendingRequestNotification = notification.object as? RequestInterceptionHandler.PendingRequestNotification {
             
             DispatchQueue.main.async{
-                self.requestsPendingApproval.append(proxyHandler)
+                self.requestsPendingApproval.append(pendingRequestNotification)
             }
         }
     }

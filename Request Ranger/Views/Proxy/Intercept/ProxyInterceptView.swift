@@ -5,27 +5,29 @@ import Logging
 struct ProxyInterceptView: View {
     @EnvironmentObject var appState: AppState
     @State private var text: String = ""
-    @State private var selectedProxy: ProxyHandler?
+    @State private var selectedNotification: RequestInterceptionHandler.PendingRequestNotification?
     
     var body: some View {
         VStack {
-            if selectedProxy != nil {
+            if selectedNotification != nil {
                 VStack {
                     TextEditor(text: $text)
                     HStack {
                         Button(role: .destructive, action: {
-                        //    selectedProxy?.dropRequest()
+                            selectedNotification?.handler.userDidDeny()
+                            //    selectedProxy?.dropRequest()
                             appState.requestsPendingApproval.removeFirst()
-                            selectedProxy = nil
+                            selectedNotification = nil
                         }, label: {
                             Label("Drop request", systemImage: "trash")
                                 .frame(maxWidth: .infinity)
                         })
-
+                        
                         Button {
-                        //    selectedProxy?.approveRequest(rawRequest: text)
+                            let requestParts = RequestConverter.rawToParts(raw: text)
+                            selectedNotification?.handler.userDidApprove(parts: requestParts)
                             appState.requestsPendingApproval.removeFirst()
-                            selectedProxy = nil
+                            selectedNotification = nil
                         } label: {
                             Label("Send", systemImage: "paperplane")
                                 .frame(maxWidth: .infinity)
@@ -46,18 +48,20 @@ struct ProxyInterceptView: View {
             }
         }
         .navigationTitle("Intercept request")
-        /*.onAppear() {
-            selectedProxy = appState.requestsPendingApproval.first
-            if let proxy = appState.requestsPendingApproval.first {
-                text = proxy.getRawRequest(requestParts: proxy.requestParts)
+        .onAppear() {
+            selectedNotification = appState.requestsPendingApproval.first
+            if let notification = appState.requestsPendingApproval.first {
+                let rawRequest = RequestConverter.partToRaw(requestParts: notification.request)
+                text = rawRequest
             }
         }
         .onChange(of: appState.requestsPendingApproval) { _ in
-            selectedProxy = appState.requestsPendingApproval.first
-            if let proxy = appState.requestsPendingApproval.first {
-                text = proxy.getRawRequest(requestParts: proxy.requestParts)
+            selectedNotification = appState.requestsPendingApproval.first
+            if let notification = appState.requestsPendingApproval.first {
+                let rawRequest = RequestConverter.partToRaw(requestParts: notification.request)
+                text = rawRequest
             }
-        }*/
+        }
     }
 }
 

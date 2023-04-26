@@ -60,6 +60,7 @@ final class ProxyPipelineHandler: ChannelInboundHandler, RemovableChannelHandler
         print("Setting up pipeline for encrypted request")
         _ = context.channel.pipeline.addHandler(HttpsConnectRewriteHandler())
         _ = context.channel.pipeline.addHandler(HttpCloseConnectionHandler())
+        _ = context.channel.pipeline.addHandler(RequestInterceptionHandler())
         _ = context.channel.pipeline.addHandler(RequestLogHandler())
         _ = context.channel.pipeline.addHandlers(EncryptedProxyHandler())
     }
@@ -68,8 +69,72 @@ final class ProxyPipelineHandler: ChannelInboundHandler, RemovableChannelHandler
         print("Setting up pipeline for unencrypted request")
         _ = context.channel.pipeline.addHandler(HttpProxyUriRewriterHandler())
         _ = context.channel.pipeline.addHandler(HttpCloseConnectionHandler())
+        _ = context.channel.pipeline.addHandler(RequestInterceptionHandler())
         _ = context.channel.pipeline.addHandler(RequestLogHandler())
         _ = context.channel.pipeline.addHandlers(UnencryptedProxyHandler())
+    }
+}
+
+/** Intercepts requests if the intercept mode is enabled*/
+final class RequestInterceptionHandler: ChannelInboundHandler {
+    typealias InboundIn = HTTPServerRequestPart
+    typealias InboundOut = HTTPServerRequestPart
+    
+    private var context: ChannelHandlerContext? = nil
+    
+    struct PendingRequestNotification: Equatable {
+        static func == (lhs: RequestInterceptionHandler.PendingRequestNotification, rhs: RequestInterceptionHandler.PendingRequestNotification) -> Bool {
+            return false
+        }
+        
+        let handler: RequestInterceptionHandler
+        let request: [HTTPServerRequestPart]
+    }
+    
+    private var pendingRequestParts: [HTTPServerRequestPart] = []
+    
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        self.context = context
+        let requestPart = unwrapInboundIn(data)
+        
+        if AppState.shared.isInterceptEnabled {
+            pendingRequestParts.append(requestPart)
+            
+            if case .end(_) = requestPart {
+                let notification = PendingRequestNotification(
+                    handler: self,
+                    request: pendingRequestParts
+                )
+                NotificationCenter.default.post(name: .pendingRequest, object: notification)
+                return
+            }
+        } else {
+            context.fireChannelRead(data)
+        }
+    }
+    
+    func userDidApprove(parts: [HTTPServerRequestPart]) {
+        context!.eventLoop.execute {
+            for requestPart in parts {
+                self.context!.fireChannelRead(self.wrapInboundOut(requestPart))
+            }
+        }
+    }
+    
+    func userDidDeny() {
+        context!.eventLoop.execute {
+            
+            var headers = HTTPHeaders()
+            headers.add(name: "Content-Type", value: "text/plain; charset=utf-8")
+            
+            let responseHead = HTTPResponseHead(version: .http1_1, status: .serviceUnavailable, headers: headers)
+            let responsePart = HTTPServerResponsePart.head(responseHead)
+            
+            self.context!.write(NIOAny(responsePart), promise: nil)
+            let responseBody = HTTPServerResponsePart.body(.byteBuffer(self.context!.channel.allocator.buffer(string: "Request cancelled by Request Ranger")))
+            self.context!.writeAndFlush(NIOAny(responseBody), promise: nil)
+            self.context!.close(promise: nil)
+        }
     }
 }
 
@@ -120,7 +185,7 @@ final class RequestLogHandler: ChannelInboundHandler {
             }
         }
         
-        let rawRequest = getRawRequest(requestParts: requestParts)
+        let rawRequest = RequestConverter.partToRaw(requestParts: requestParts)
         let newID = ProxyHandler.globalRequestID.wrappingIncrementThenLoad(ordering: .relaxed)
         let loggedRequest = ProxiedHttpRequest(
             id: newID,
@@ -134,27 +199,6 @@ final class RequestLogHandler: ChannelInboundHandler {
         DispatchQueue.main.async { [loggedRequest] in
             NotificationCenter.default.post(name: .newHttpRequest, object: loggedRequest)
         }
-    }
-    
-    private func getRawRequest(requestParts: [HTTPServerRequestPart]) -> String {
-        var rawRequest = ""
-        
-        for reqPart in requestParts {
-            switch reqPart {
-            case .head(let head):
-                rawRequest += "\(head.method.rawValue) \(head.uri) HTTP/1.1\r\n"
-                for (name, value) in head.headers {
-                    rawRequest += "\(name): \(value)\r\n"
-                }
-                rawRequest += "\r\n"
-            case .body(let buffer):
-                rawRequest += buffer.getString(at: buffer.readerIndex, length: buffer.readableBytes) ?? ""
-            case .end:
-                break
-            }
-        }
-        
-        return rawRequest
     }
 }
 
@@ -336,7 +380,7 @@ final class EncryptedProxyHandler: UnencryptedProxyHandler {
                 return channel.eventLoop.makeFailedFuture(error)
             }
         }.connect(host: host, port: port)
-
+        
         
         channelFuture.whenSuccess { channel in
             print("EncryptedProxyHandler: Channel to client has been established")
@@ -476,4 +520,3 @@ final class ResponseForwarder: ChannelInboundHandler {
         originalChannel.writeAndFlush(httpServerResponsePart, promise: nil)
     }
 }
-
