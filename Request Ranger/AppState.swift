@@ -29,7 +29,7 @@ class AppState: ObservableObject {
     }
     
     @objc func handleProxyRun(notification: Notification) {
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .background).async {
             if(self.isProxyRunning) {
                 try! self.serverGroup?.syncShutdownGracefully()
                 DispatchQueue.main.async {
