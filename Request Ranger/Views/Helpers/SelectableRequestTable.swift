@@ -1,5 +1,6 @@
 import SwiftUI
 import HttpParser
+import Combine
 
 struct SelectableRequestTable: View {
     @Binding var selectedRequest: ProxiedHttpRequest.ID?
@@ -7,6 +8,9 @@ struct SelectableRequestTable: View {
     @State private var sortOrder = [KeyPathComparator(\ProxiedHttpRequest.id)]
     @Binding var searchText: String
     @Binding var filteredRequestIds: [Int]?
+    @State private var searchTextPublisher = PassthroughSubject<String, Never>()
+    @State private var debouncedSearchText: String = ""
+    private var cancellables = Set<AnyCancellable>()
 
 #if os(iOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -56,7 +60,7 @@ struct SelectableRequestTable: View {
                 TableColumn("Path", value: \.path)
             } rows: {
                 ForEach(filteredRequests) { request in
-                    if(searchText == "" || (request.rawRequest.contains(searchText) || (request.response != nil && request.response!.rawResponse.contains(searchText)))) {
+                    if debouncedSearchText == "" || (request.rawRequest.contains(debouncedSearchText) || (request.response != nil && request.response!.rawResponse.contains(debouncedSearchText))) {
                         TableRow(request)
                             .contextMenu {
                                 Button {
@@ -72,6 +76,12 @@ struct SelectableRequestTable: View {
                             }
                     }
                 }
+            }
+            .onReceive(searchTextPublisher.debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)) { debouncedText in
+                debouncedSearchText = debouncedText
+            }
+            .onChange(of: searchText) { newValue in
+                searchTextPublisher.send(newValue)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             if GetSelectedRequest() != nil {
@@ -130,7 +140,6 @@ struct SelectableRequestTable: View {
                 })
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            
         }
     }
 }
