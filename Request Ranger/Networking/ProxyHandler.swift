@@ -191,10 +191,10 @@ final class RequestLogHandler: ChannelInboundHandler {
                 httpMethod = head.method.rawValue
                 path = head.uri
                 for (name, value) in head.headers {
-                    if headers[name.lowercased()] == nil {
-                        headers[name.lowercased()] = Set<String>()
+                    if headers[name] == nil {
+                        headers[name] = Set<String>()
                     }
-                    headers[name.lowercased()]?.insert(value)
+                    headers[name]?.insert(value)
                 }
             default:
                 break
