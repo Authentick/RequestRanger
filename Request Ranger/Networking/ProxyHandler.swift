@@ -138,10 +138,15 @@ final class RequestInterceptionHandler: ChannelInboundHandler {
     }
 }
 
+struct LoggedHTTPServerRequestPart {
+    let requestId: Int
+    let requestPart: HTTPServerRequestPart
+}
+
 /** Log the request  */
 final class RequestLogHandler: ChannelInboundHandler {
     typealias InboundIn = HTTPServerRequestPart
-    typealias InboundOut = HTTPServerRequestPart
+    typealias InboundOut = LoggedHTTPServerRequestPart
     
     private var requestParts: [HTTPServerRequestPart] = []
     private var targetHost: String?
@@ -154,16 +159,21 @@ final class RequestLogHandler: ChannelInboundHandler {
         case .head(let head):
             targetHost = head.headers["Host"].first
         case .end:
-            logRequest(requestParts: requestParts)
+            let requestId = logRequest(requestParts: requestParts)
+            
+            for part in requestParts {
+                let loggedRequestParts = LoggedHTTPServerRequestPart(requestId: requestId, requestPart: part)
+                context.fireChannelRead(self.wrapInboundOut(loggedRequestParts))
+            }
         default:
             break
         }
-        
-        context.fireChannelRead(self.wrapInboundOut(requestPart))
     }
     
-    private func logRequest(requestParts: [HTTPServerRequestPart]) {
-        guard let targetHost = targetHost else { return }
+    private func logRequest(requestParts: [HTTPServerRequestPart]) -> Int {
+        guard let targetHost = targetHost else {
+            fatalError("TargetHost isn't set in logRequest")
+        }
         
         var httpMethod = ""
         var path = ""
@@ -199,6 +209,8 @@ final class RequestLogHandler: ChannelInboundHandler {
         DispatchQueue.main.async { [loggedRequest] in
             NotificationCenter.default.post(name: .newHttpRequest, object: loggedRequest)
         }
+        
+        return newID
     }
 }
 
@@ -392,7 +404,7 @@ final class EncryptedProxyHandler: UnencryptedProxyHandler {
 
 /** Handles the unencrypted HTTP requests and responses */
 class UnencryptedProxyHandler: ChannelInboundHandler {
-    typealias InboundIn = HTTPServerRequestPart
+    typealias InboundIn = LoggedHTTPServerRequestPart
     typealias InboundOut = HTTPServerRequestPart
     
     fileprivate var connectionEstablished = false
@@ -406,7 +418,8 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         print("Unencrypted Proxy Handler read called")
         
-        let requestPart = self.unwrapInboundIn(data)
+        let inboundIn = self.unwrapInboundIn(data)
+        let requestPart = inboundIn.requestPart
         if case .head(let head) = requestPart, targetHost == nil, targetPort == nil {
             extractHostAndPort(from: head)
         }
@@ -469,7 +482,8 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
             return
         }
         
-        let originalRequest = self.unwrapInboundIn(data)
+        let inboundIn = self.unwrapInboundIn(data)
+        let originalRequest = inboundIn.requestPart
         var clientReqPart: HTTPClientRequestPart
         switch(originalRequest) {
         case .head(let head):
@@ -484,10 +498,10 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
     }
 }
 
-/** Forewards the response back to the client */
+/** Forwards the response back to the client */
 final class ResponseForwarder: ChannelInboundHandler {
     typealias InboundIn = HTTPClientResponsePart
-    typealias InboundOut = HTTPServerResponsePart
+    typealias InboundOut = ProxiedHttpResponse
     
     private let originalChannel: Channel
     private var endSent: Bool = false
