@@ -56,21 +56,28 @@ final class ProxyPipelineHandler: ChannelInboundHandler, RemovableChannelHandler
         }
     }
     
+    private func setupUnencryptedSharedHandlers(context: ChannelHandlerContext) {
+        _ = context.channel.pipeline.addHandler(HttpCloseConnectionHandler())
+        _ = context.channel.pipeline.addHandler(HttpRemoveAcceptEncodingHeader())
+        _ = context.channel.pipeline.addHandler(RequestInterceptionHandler())
+        _ = context.channel.pipeline.addHandler(RequestLogHandler())
+    }
+    
     private func handleEncryptedRequest(context: ChannelHandlerContext) {
         print("Setting up pipeline for encrypted request")
         _ = context.channel.pipeline.addHandler(HttpsConnectRewriteHandler())
-        _ = context.channel.pipeline.addHandler(HttpCloseConnectionHandler())
-        _ = context.channel.pipeline.addHandler(RequestInterceptionHandler())
-        _ = context.channel.pipeline.addHandler(RequestLogHandler())
+        
+        setupUnencryptedSharedHandlers(context: context)
+        
         _ = context.channel.pipeline.addHandlers(EncryptedProxyHandler())
     }
     
     private func handleUnencryptedRequest(context: ChannelHandlerContext) {
         print("Setting up pipeline for unencrypted request")
         _ = context.channel.pipeline.addHandler(HttpProxyUriRewriterHandler())
-        _ = context.channel.pipeline.addHandler(HttpCloseConnectionHandler())
-        _ = context.channel.pipeline.addHandler(RequestInterceptionHandler())
-        _ = context.channel.pipeline.addHandler(RequestLogHandler())
+
+        setupUnencryptedSharedHandlers(context: context)
+
         _ = context.channel.pipeline.addHandlers(UnencryptedProxyHandler())
     }
 }
@@ -224,6 +231,25 @@ final class HttpCloseConnectionHandler: ChannelInboundHandler {
         switch requestPart {
         case .head(var head):
             head.headers.replaceOrAdd(name: "Connection", value: "close")
+            requestPart = .head(head)
+        default:
+            break
+        }
+        
+        context.fireChannelRead(self.wrapInboundOut(requestPart))
+    }
+}
+
+/** Removes any potential accept-encoding header */
+final class HttpRemoveAcceptEncodingHeader: ChannelInboundHandler {
+    typealias InboundIn = HTTPServerRequestPart
+    typealias InboundOut = HTTPServerRequestPart
+    
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        var requestPart = self.unwrapInboundIn(data)
+        switch requestPart {
+        case .head(var head):
+            head.headers.remove(name: "Accept-Encoding")
             requestPart = .head(head)
         default:
             break
