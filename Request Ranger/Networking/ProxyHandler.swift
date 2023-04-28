@@ -363,19 +363,8 @@ final class EncryptedProxyHandler: UnencryptedProxyHandler {
         self.defaultPort = 443
     }
     
-    override func setupConnection(context: ChannelHandlerContext, host: String, port: Int) {
-        guard connectionPromise == nil else { return }
-        
-        connectionPromise = context.eventLoop.makePromise(of: Void.self)
-        connectionPromise!.futureResult.whenSuccess {
-            self.connectionEstablished = true
-            self.pendingData.forEach { data in
-                self.writeToRemoteChannel(context: context, data: data)
-            }
-            self.pendingData.removeAll()
-        }
-        
-        let channelFuture = ClientBootstrap(group: context.eventLoop).channelInitializer { channel in
+    override func clientBootstrap(context: ChannelHandlerContext, host: String) -> ClientBootstrap {
+        return ClientBootstrap(group: context.eventLoop).channelInitializer { channel in
             do {
                 let sslContext = try NIOSSLContext(configuration: .makeClientConfiguration())
                 let sslHandler = try NIOSSLClientHandler(context: sslContext, serverHostname: host)
@@ -391,13 +380,6 @@ final class EncryptedProxyHandler: UnencryptedProxyHandler {
                 print("Failed to setup SSL handler:", error)
                 return channel.eventLoop.makeFailedFuture(error)
             }
-        }.connect(host: host, port: port)
-        
-        
-        channelFuture.whenSuccess { channel in
-            print("EncryptedProxyHandler: Channel to client has been established")
-            self.remoteChannel = channel
-            self.connectionPromise?.succeed(())
         }
     }
 }
@@ -449,7 +431,7 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
         }
     }
     
-    fileprivate func setupConnection(context: ChannelHandlerContext, host: String, port: Int) {
+    private func setupConnection(context: ChannelHandlerContext, host: String, port: Int) {
         guard connectionPromise == nil else { return }
         
         connectionPromise = context.eventLoop.makePromise(of: Void.self)
@@ -461,18 +443,22 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
             self.pendingData.removeAll()
         }
         
-        let channelFuture = ClientBootstrap(group: context.eventLoop).channelInitializer { channel in
+        let channelFuture = clientBootstrap(context: context, host: host).connect(host: host, port: port)
+        
+        channelFuture.whenSuccess { channel in
+            print("\(String(describing: self)): Channel to client has been established")
+            self.remoteChannel = channel
+            self.connectionPromise?.succeed(())
+        }
+    }
+    
+    fileprivate func clientBootstrap(context: ChannelHandlerContext, host: String) -> ClientBootstrap {
+        return ClientBootstrap(group: context.eventLoop).channelInitializer { channel in
             channel.pipeline.addHandlers([
                 HTTPRequestEncoder(),
                 ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)),
                 ResponseForwarder(originalChannel: context.channel)
             ])
-        }.connect(host: host, port: port)
-        
-        channelFuture.whenSuccess { channel in
-            print("UnencryptedProxyHandler: Channel to client has been established")
-            self.remoteChannel = channel
-            self.connectionPromise?.succeed(())
         }
     }
     
