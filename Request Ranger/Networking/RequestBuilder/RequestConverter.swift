@@ -24,6 +24,32 @@ struct RequestConverter {
         return rawRequest
     }
     
+    static func partToRaw(responseParts: [HTTPServerResponsePart]) -> String {
+        var rawResponse = ""
+
+        for resPart in responseParts {
+            switch resPart {
+            case .head(let head):
+                rawResponse += "HTTP/\(head.version.major).\(head.version.minor) \(head.status.code) \(head.status.reasonPhrase)\r\n"
+                for (name, value) in head.headers {
+                    rawResponse += "\(name): \(value)\r\n"
+                }
+                rawResponse += "\r\n"
+            case .body(let data):
+                switch data {
+                case .byteBuffer(let buffer):
+                    rawResponse += buffer.getString(at: buffer.readerIndex, length: buffer.readableBytes) ?? ""
+                case .fileRegion(let region):
+                    fatalError("Handling 'fileRegion' is not supported in this implementation.")
+                }
+            case .end:
+                break
+            }
+        }
+
+        return rawResponse
+    }
+    
     static func rawToParts(raw: String) -> [HTTPServerRequestPart] {
         var requestParts: [HTTPServerRequestPart] = []
         let lines = raw.split(separator: "\r\n")

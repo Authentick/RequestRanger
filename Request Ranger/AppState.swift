@@ -19,6 +19,7 @@ class AppState: ObservableObject {
     
     private init() {
         NotificationCenter.default.addObserver(self, selector: #selector(handleNewHttpRequest(notification:)), name: .newHttpRequest, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleHttpReplyReceived(notification:)), name: .httpReplyReceived, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleAddCompareEntry(notification:)), name: .addCompareEntry, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handlePendingRequest(notification:)), name: .pendingRequest, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleProxyRun(notification:)), name: .proxyRunCommand, object: nil)
@@ -81,6 +82,17 @@ class AppState: ObservableObject {
             logger.error("Failed to start server: \(error)")
             try? serverGroup.syncShutdownGracefully()
             exit(1)
+        }
+    }
+    
+    @objc func handleHttpReplyReceived(notification: Notification) {
+        if let proxiedHttpReply = notification.object as? HttpReplyReceivedNotificationMessage {
+            if let index = self.proxyData.httpRequests.firstIndex(where: { $0.id == proxiedHttpReply.id }) {
+                let response = ProxiedHttpResponse(rawResponse:proxiedHttpReply.rawHttpReply , headers: proxiedHttpReply.headers)
+                DispatchQueue.main.async {
+                    self.proxyData.httpRequests[index].response = response
+                }
+            }
         }
     }
     

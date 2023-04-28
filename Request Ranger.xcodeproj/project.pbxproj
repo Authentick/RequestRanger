@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		FB03F27329DF08E2009BF572 /* ProxyInterceptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB03F27229DF08E2009BF572 /* ProxyInterceptView.swift */; };
 		FB28C4E629FBED7200CF2382 /* NotificationTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB28C4E529FBED7200CF2382 /* NotificationTypes.swift */; };
+		FB28C4E829FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB28C4E729FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift */; };
 		FB2A92CB29F33CC60063034D /* CertificateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2A92CA29F33CC60063034D /* CertificateManager.swift */; };
 		FB2BF8FA29CF335D006FA9C3 /* RequestRangerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF8F929CF335D006FA9C3 /* RequestRangerApp.swift */; };
 		FB2BF8FC29CF335D006FA9C3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF8FB29CF335D006FA9C3 /* ContentView.swift */; };
@@ -65,6 +66,7 @@
 /* Begin PBXFileReference section */
 		FB03F27229DF08E2009BF572 /* ProxyInterceptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyInterceptView.swift; sourceTree = "<group>"; };
 		FB28C4E529FBED7200CF2382 /* NotificationTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTypes.swift; sourceTree = "<group>"; };
+		FB28C4E729FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpReplyReceivedNotificationMessage.swift; sourceTree = "<group>"; };
 		FB2A92CA29F33CC60063034D /* CertificateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateManager.swift; sourceTree = "<group>"; };
 		FB2BF8F629CF335D006FA9C3 /* Request Ranger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Request Ranger.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB2BF8F929CF335D006FA9C3 /* RequestRangerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRangerApp.swift; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 			isa = PBXGroup;
 			children = (
 				FB28C4E529FBED7200CF2382 /* NotificationTypes.swift */,
+				FB28C4E729FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift */,
 			);
 			path = Notifications;
 			sourceTree = "<group>";
@@ -411,6 +414,7 @@
 				FBFAC69C29E45ADA007BC838 /* SaveData.swift in Sources */,
 				FBEACECD29D744CE004A8B64 /* DecodeView.swift in Sources */,
 				FB2BF8FC29CF335D006FA9C3 /* ContentView.swift in Sources */,
+				FB28C4E829FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift in Sources */,
 				FB2BF91529CF3D0E006FA9C3 /* ProxyHttpHistoryView.swift in Sources */,
 				FBFD02FB29EB0A3F00E02A11 /* SelectableRequestTable.swift in Sources */,
 				FB2BF8FA29CF335D006FA9C3 /* RequestRangerApp.swift in Sources */,

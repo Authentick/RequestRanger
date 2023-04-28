@@ -370,7 +370,7 @@ final class EncryptedProxyHandler: UnencryptedProxyHandler {
                 let sslHandler = try NIOSSLClientHandler(context: sslContext, serverHostname: host)
                 
                 return channel.pipeline.addHandler(sslHandler).flatMap {
-                    self.setupHandlers(channel: channel, context: context)
+                    self.setupHandlers(channel: channel, context: context, requestId: requestId)
                 }
             } catch {
                 print("Failed to setup SSL handler:", error)
@@ -450,18 +450,18 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
     
     fileprivate func clientBootstrap(context: ChannelHandlerContext, host: String, requestId: Int) -> ClientBootstrap {
         return ClientBootstrap(group: context.eventLoop).channelInitializer { channel in
-            self.setupHandlers(channel: channel, context: context)
+            self.setupHandlers(channel: channel, context: context, requestId: requestId)
         }
     }
     
-    fileprivate func setupHandlers(channel: Channel, context: ChannelHandlerContext) -> EventLoopFuture<Void> {
+    fileprivate func setupHandlers(channel: Channel, context: ChannelHandlerContext, requestId: Int) -> EventLoopFuture<Void> {
         return channel.pipeline.addHandlers([
             HTTPRequestEncoder(),
             ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)),
-            ResponseForwarder(originalChannel: context.channel)
+            ResponseForwarder(originalChannel: context.channel, requestId: requestId)
         ])
     }
-
+    
     fileprivate func writeToRemoteChannel(context: ChannelHandlerContext, data: NIOAny) {
         guard let remoteChannel = remoteChannel else {
             print("Remote channel is not available")
@@ -491,13 +491,28 @@ final class ResponseForwarder: ChannelInboundHandler {
     
     private let originalChannel: Channel
     private var endSent: Bool = false
+    private let requestId: Int
+    private var responseParts: [HTTPServerResponsePart] = []
+    private var headers: Dictionary<String, Set<String>> = [:]
     
-    init(originalChannel: Channel) {
+    init(
+        originalChannel: Channel,
+        requestId: Int
+    ) {
         self.originalChannel = originalChannel
+        self.requestId = requestId
     }
     
     func channelReadComplete(context: ChannelHandlerContext) {
         if endSent {
+            let httpReply = RequestConverter.partToRaw(responseParts: responseParts)
+            let replyNotification = HttpReplyReceivedNotificationMessage(
+                id: self.requestId,
+                rawHttpReply: httpReply,
+                headers: self.headers
+            )
+            NotificationCenter.default.post(name: .httpReplyReceived, object: replyNotification)
+            
             context.fireChannelReadComplete()
             context.close(promise: nil)
         }
@@ -510,6 +525,15 @@ final class ResponseForwarder: ChannelInboundHandler {
         switch responsePart {
         case .head(let head):
             httpServerResponsePart = .head(head)
+            for header in head.headers {
+                let key = header.name
+                let value = header.value
+                
+                if headers[key] == nil {
+                    headers[key] = Set<String>()
+                }
+                headers[key]?.insert(value)
+            }
         case .body(let buffer):
             httpServerResponsePart = .body(.byteBuffer(buffer))
         case .end(let headers):
@@ -517,6 +541,7 @@ final class ResponseForwarder: ChannelInboundHandler {
             endSent = true
         }
         
+        self.responseParts.append(httpServerResponsePart)
         originalChannel.writeAndFlush(httpServerResponsePart, promise: nil)
     }
 }
