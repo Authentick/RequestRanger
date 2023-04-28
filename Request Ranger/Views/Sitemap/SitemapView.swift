@@ -118,7 +118,6 @@ struct SiteMapView: View {
         var body: some View {
             SelectableRequestTable(
                 selectedRequest: $selectedRequest,
-                appState: appState,
                 filteredRequestIds: $filteredRequestIds
             )
         }
@@ -138,7 +137,6 @@ struct SiteMapView: View {
     private var selectableRequestTable: some View {
         SelectableRequestTable(
             selectedRequest: $selectedRequestDetail,
-            appState: appState,
             filteredRequestIds: $selectedRequestIds
         )
     }

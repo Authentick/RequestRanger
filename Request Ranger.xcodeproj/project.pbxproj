@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		FB03F27329DF08E2009BF572 /* ProxyInterceptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB03F27229DF08E2009BF572 /* ProxyInterceptView.swift */; };
+		FB28C4E629FBED7200CF2382 /* NotificationTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB28C4E529FBED7200CF2382 /* NotificationTypes.swift */; };
+		FB28C4E829FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB28C4E729FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift */; };
 		FB2A92CB29F33CC60063034D /* CertificateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2A92CA29F33CC60063034D /* CertificateManager.swift */; };
 		FB2BF8FA29CF335D006FA9C3 /* RequestRangerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF8F929CF335D006FA9C3 /* RequestRangerApp.swift */; };
 		FB2BF8FC29CF335D006FA9C3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF8FB29CF335D006FA9C3 /* ContentView.swift */; };
@@ -32,6 +34,7 @@
 		FB83549B29F07C1000A1169D /* NIOHTTP1 in Frameworks */ = {isa = PBXBuildFile; productRef = FB83549A29F07C1000A1169D /* NIOHTTP1 */; };
 		FB83549E29F0806E00A1169D /* X509 in Frameworks */ = {isa = PBXBuildFile; productRef = FB83549D29F0806E00A1169D /* X509 */; };
 		FB8354A129F0854D00A1169D /* SwiftASN1 in Frameworks */ = {isa = PBXBuildFile; productRef = FB8354A029F0854D00A1169D /* SwiftASN1 */; };
+		FB9DD7AD29F9AF9E00C24537 /* RequestConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB9DD7AC29F9AF9E00C24537 /* RequestConverter.swift */; };
 		FBD4CEF229E600E0008EB5E2 /* ProxyHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD4CEF129E600E0008EB5E2 /* ProxyHandler.swift */; };
 		FBD4CF0329E609E3008EB5E2 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = FBD4CF0229E609E3008EB5E2 /* Logging */; };
 		FBD4CF0529E6AC52008EB5E2 /* HeadersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD4CF0429E6AC51008EB5E2 /* HeadersView.swift */; };
@@ -62,6 +65,8 @@
 
 /* Begin PBXFileReference section */
 		FB03F27229DF08E2009BF572 /* ProxyInterceptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyInterceptView.swift; sourceTree = "<group>"; };
+		FB28C4E529FBED7200CF2382 /* NotificationTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTypes.swift; sourceTree = "<group>"; };
+		FB28C4E729FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpReplyReceivedNotificationMessage.swift; sourceTree = "<group>"; };
 		FB2A92CA29F33CC60063034D /* CertificateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateManager.swift; sourceTree = "<group>"; };
 		FB2BF8F629CF335D006FA9C3 /* Request Ranger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Request Ranger.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB2BF8F929CF335D006FA9C3 /* RequestRangerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRangerApp.swift; sourceTree = "<group>"; };
@@ -83,6 +88,7 @@
 		FB731E3329EC4E610036F189 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		FB7962B029E71FF500997994 /* ConditionalSplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalSplitView.swift; sourceTree = "<group>"; };
 		FB7BE55429DA0A9700DF17A6 /* HTMLEntities */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HTMLEntities; sourceTree = "<group>"; };
+		FB9DD7AC29F9AF9E00C24537 /* RequestConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestConverter.swift; sourceTree = "<group>"; };
 		FBB3E34129E3451C00529FA3 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		FBB674F829D9E40D00961338 /* Request Ranger.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Request Ranger.entitlements"; sourceTree = "<group>"; };
 		FBB8954A29D6398300A7E913 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -134,6 +140,15 @@
 				FB58EE9529E3440300BE7A6D /* README.md */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FB28C4E429FBED5D00CF2382 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				FB28C4E529FBED7200CF2382 /* NotificationTypes.swift */,
+				FB28C4E729FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		FB2BF8ED29CF335D006FA9C3 = {
@@ -222,6 +237,7 @@
 		FB2BF91C29CF4CE3006FA9C3 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				FB9DD7AB29F9AF8200C24537 /* RequestBuilder */,
 				FBD4CEF129E600E0008EB5E2 /* ProxyHandler.swift */,
 				FB2A92CA29F33CC60063034D /* CertificateManager.swift */,
 			);
@@ -231,6 +247,7 @@
 		FB2BF91F29CF509F006FA9C3 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				FB28C4E429FBED5D00CF2382 /* Notifications */,
 				FB2BF92029CF50E8006FA9C3 /* RequestData.swift */,
 				FB58450829E4119200DF9F0A /* ComparisonData.swift */,
 				FBFAC69B29E45ADA007BC838 /* SaveData.swift */,
@@ -263,6 +280,14 @@
 				FB7962B029E71FF500997994 /* ConditionalSplitView.swift */,
 			);
 			path = PlatformCompatibility;
+			sourceTree = "<group>";
+		};
+		FB9DD7AB29F9AF8200C24537 /* RequestBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				FB9DD7AC29F9AF9E00C24537 /* RequestConverter.swift */,
+			);
+			path = RequestBuilder;
 			sourceTree = "<group>";
 		};
 		FBEACECB29D744AD004A8B64 /* Decode */ = {
@@ -389,6 +414,7 @@
 				FBFAC69C29E45ADA007BC838 /* SaveData.swift in Sources */,
 				FBEACECD29D744CE004A8B64 /* DecodeView.swift in Sources */,
 				FB2BF8FC29CF335D006FA9C3 /* ContentView.swift in Sources */,
+				FB28C4E829FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift in Sources */,
 				FB2BF91529CF3D0E006FA9C3 /* ProxyHttpHistoryView.swift in Sources */,
 				FBFD02FB29EB0A3F00E02A11 /* SelectableRequestTable.swift in Sources */,
 				FB2BF8FA29CF335D006FA9C3 /* RequestRangerApp.swift in Sources */,
@@ -401,8 +427,10 @@
 				FBD4E93329DAD46200AB08B3 /* CompareResultView.swift in Sources */,
 				FB2BF92129CF50E8006FA9C3 /* RequestData.swift in Sources */,
 				FB731E3429EC4E610036F189 /* AppState.swift in Sources */,
+				FB9DD7AD29F9AF9E00C24537 /* RequestConverter.swift in Sources */,
 				FBFD02F929EAFDCF00E02A11 /* SitemapView.swift in Sources */,
 				FB366E5029D8844400E2D087 /* SwiftUIWebView.swift in Sources */,
+				FB28C4E629FBED7200CF2382 /* NotificationTypes.swift in Sources */,
 				FB65094829D5092000E00674 /* SettingsView.swift in Sources */,
 				FB5150E629DA20B3003B4CDA /* ComparerView.swift in Sources */,
 				FBD4CF0529E6AC52008EB5E2 /* HeadersView.swift in Sources */,
@@ -535,7 +563,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Request Ranger/Request Ranger.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Request Ranger/Preview Content\"";
 				DEVELOPMENT_TEAM = XV65C36P5A;
@@ -553,7 +581,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.authentick.SuperProxy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -573,7 +601,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Request Ranger/Request Ranger.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Request Ranger/Preview Content\"";
 				DEVELOPMENT_TEAM = XV65C36P5A;
@@ -591,7 +619,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.authentick.SuperProxy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";

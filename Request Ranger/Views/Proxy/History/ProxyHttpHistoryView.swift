@@ -7,7 +7,7 @@ struct ProxyHttpHistoryView: View {
     @State private var searchText = ""
     
     var historyView: some View {
-        SelectableRequestTable(selectedRequest: $selectedRequest, appState: appState, searchText: $searchText)
+        SelectableRequestTable(selectedRequest: $selectedRequest, searchText: $searchText)
     }
     
     var body: some View {
