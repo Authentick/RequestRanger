@@ -6,9 +6,8 @@ struct SelectableRequestTable: View {
     @EnvironmentObject var appState: AppState
     @State private var sortOrder = [KeyPathComparator(\ProxiedHttpRequest.id)]
     @Binding var searchText: String
-    @State private var filteredRequests: [ProxiedHttpRequest] = []
     @Binding var filteredRequestIds: [Int]?
-    
+
 #if os(iOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     private var isCompact: Bool { horizontalSizeClass == .compact }
@@ -23,16 +22,19 @@ struct SelectableRequestTable: View {
         self._searchText = searchText
         self._filteredRequestIds = filteredRequestIds
     }
-    
-    private func updateFilteredRequests() {
+
+    private var filteredRequests: [ProxiedHttpRequest] {
+        let requests: [ProxiedHttpRequest]
         if let filteredIds = filteredRequestIds {
-            filteredRequests = appState.proxyData.httpRequests.filter { request in
+            requests = appState.proxyData.httpRequests.filter { request in
                 filteredIds.contains(request.id)
             }
         } else {
-            filteredRequests = appState.proxyData.httpRequests
+            requests = appState.proxyData.httpRequests
         }
+        return requests.sorted(using: sortOrder)
     }
+
     
     private func GetSelectedRequest() -> ProxiedHttpRequest? {
         return filteredRequests.first(where: { $0.id == selectedRequest })
@@ -72,20 +74,7 @@ struct SelectableRequestTable: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onChange(of: appState.proxyData.httpRequests) { _ in
-                updateFilteredRequests()
-            }
-            .onChange(of: sortOrder) {
-                filteredRequests.sort(using: $0)
-            }
-            .onChange(of: filteredRequestIds) { (_: [Int]?) in
-                updateFilteredRequests()
-            }
-            .onAppear() {
-                updateFilteredRequests()
-            }
             if GetSelectedRequest() != nil {
-            
                 ConditionalSplitView({
                     VStack {
                         if let selectedRequest = GetSelectedRequest() {
