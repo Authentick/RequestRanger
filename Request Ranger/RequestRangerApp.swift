@@ -7,16 +7,6 @@ import UniformTypeIdentifiers
 import AppleArchive
 import System
 
-extension Notification.Name {
-    static let newHttpRequest = Notification.Name("new_http_request")
-    static let newAttemptedHttpRequest = Notification.Name("new_attempted_http_request")
-    static let proxyError = Notification.Name("proxy_connection_failure")
-    static let proxyRunCommand = Notification.Name("proxy_run_command")
-    static let cancelRequest = Notification.Name("cancel_request")
-    static let addCompareEntry = Notification.Name("add_compare_entry")
-    static let pendingRequest = Notification.Name("pending_request")
-}
-
 @main
 struct RequestRangerApp: App {
     @StateObject var appState = AppState.shared

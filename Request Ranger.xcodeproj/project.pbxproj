@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		FB03F27329DF08E2009BF572 /* ProxyInterceptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB03F27229DF08E2009BF572 /* ProxyInterceptView.swift */; };
+		FB28C4E629FBED7200CF2382 /* NotificationTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB28C4E529FBED7200CF2382 /* NotificationTypes.swift */; };
 		FB2A92CB29F33CC60063034D /* CertificateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2A92CA29F33CC60063034D /* CertificateManager.swift */; };
 		FB2BF8FA29CF335D006FA9C3 /* RequestRangerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF8F929CF335D006FA9C3 /* RequestRangerApp.swift */; };
 		FB2BF8FC29CF335D006FA9C3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF8FB29CF335D006FA9C3 /* ContentView.swift */; };
@@ -63,6 +64,7 @@
 
 /* Begin PBXFileReference section */
 		FB03F27229DF08E2009BF572 /* ProxyInterceptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyInterceptView.swift; sourceTree = "<group>"; };
+		FB28C4E529FBED7200CF2382 /* NotificationTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTypes.swift; sourceTree = "<group>"; };
 		FB2A92CA29F33CC60063034D /* CertificateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateManager.swift; sourceTree = "<group>"; };
 		FB2BF8F629CF335D006FA9C3 /* Request Ranger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Request Ranger.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB2BF8F929CF335D006FA9C3 /* RequestRangerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRangerApp.swift; sourceTree = "<group>"; };
@@ -136,6 +138,14 @@
 				FB58EE9529E3440300BE7A6D /* README.md */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FB28C4E429FBED5D00CF2382 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				FB28C4E529FBED7200CF2382 /* NotificationTypes.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		FB2BF8ED29CF335D006FA9C3 = {
@@ -234,6 +244,7 @@
 		FB2BF91F29CF509F006FA9C3 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				FB28C4E429FBED5D00CF2382 /* Notifications */,
 				FB2BF92029CF50E8006FA9C3 /* RequestData.swift */,
 				FB58450829E4119200DF9F0A /* ComparisonData.swift */,
 				FBFAC69B29E45ADA007BC838 /* SaveData.swift */,
@@ -415,6 +426,7 @@
 				FB9DD7AD29F9AF9E00C24537 /* RequestConverter.swift in Sources */,
 				FBFD02F929EAFDCF00E02A11 /* SitemapView.swift in Sources */,
 				FB366E5029D8844400E2D087 /* SwiftUIWebView.swift in Sources */,
+				FB28C4E629FBED7200CF2382 /* NotificationTypes.swift in Sources */,
 				FB65094829D5092000E00674 /* SettingsView.swift in Sources */,
 				FB5150E629DA20B3003B4CDA /* ComparerView.swift in Sources */,
 				FBD4CF0529E6AC52008EB5E2 /* HeadersView.swift in Sources */,
