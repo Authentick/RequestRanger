@@ -5,7 +5,7 @@ import Combine
 struct SelectableRequestTable: View {
     @Binding var selectedRequest: ProxiedHttpRequest.ID?
     @EnvironmentObject var appState: AppState
-    @State private var sortOrder = [KeyPathComparator(\ProxiedHttpRequest.id)]
+    @State private var sortOrder = [KeyPathComparator(\ProxiedHttpRequest.id, order: .reverse)]
     @Binding var searchText: String
     @Binding var filteredRequestIds: [Int]?
     @State private var searchTextPublisher = PassthroughSubject<String, Never>()
