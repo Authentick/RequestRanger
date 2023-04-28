@@ -363,18 +363,14 @@ final class EncryptedProxyHandler: UnencryptedProxyHandler {
         self.defaultPort = 443
     }
     
-    override func clientBootstrap(context: ChannelHandlerContext, host: String) -> ClientBootstrap {
+    override func clientBootstrap(context: ChannelHandlerContext, host: String, requestId: Int) -> ClientBootstrap {
         return ClientBootstrap(group: context.eventLoop).channelInitializer { channel in
             do {
                 let sslContext = try NIOSSLContext(configuration: .makeClientConfiguration())
                 let sslHandler = try NIOSSLClientHandler(context: sslContext, serverHostname: host)
                 
                 return channel.pipeline.addHandler(sslHandler).flatMap {
-                    channel.pipeline.addHandlers([
-                        HTTPRequestEncoder(),
-                        ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)),
-                        ResponseForwarder(originalChannel: context.channel)
-                    ])
+                    self.setupHandlers(channel: channel, context: context)
                 }
             } catch {
                 print("Failed to setup SSL handler:", error)
@@ -398,7 +394,7 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
     internal var defaultPort = 80
     
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        print("Unencrypted Proxy Handler read called")
+        print("\(String(describing: self)) Proxy Handler read called")
         
         let inboundIn = self.unwrapInboundIn(data)
         let requestPart = inboundIn.requestPart
@@ -413,7 +409,7 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
         
         if !connectionEstablished {
             pendingData.append(data)
-            setupConnection(context: context, host: targetHost, port: targetPort)
+            setupConnection(context: context, host: targetHost, port: targetPort, requestId: inboundIn.requestId)
         } else {
             writeToRemoteChannel(context: context, data: data)
         }
@@ -431,7 +427,7 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
         }
     }
     
-    private func setupConnection(context: ChannelHandlerContext, host: String, port: Int) {
+    private func setupConnection(context: ChannelHandlerContext, host: String, port: Int, requestId: Int) {
         guard connectionPromise == nil else { return }
         
         connectionPromise = context.eventLoop.makePromise(of: Void.self)
@@ -443,7 +439,7 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
             self.pendingData.removeAll()
         }
         
-        let channelFuture = clientBootstrap(context: context, host: host).connect(host: host, port: port)
+        let channelFuture = clientBootstrap(context: context, host: host, requestId: requestId).connect(host: host, port: port)
         
         channelFuture.whenSuccess { channel in
             print("\(String(describing: self)): Channel to client has been established")
@@ -452,16 +448,20 @@ class UnencryptedProxyHandler: ChannelInboundHandler {
         }
     }
     
-    fileprivate func clientBootstrap(context: ChannelHandlerContext, host: String) -> ClientBootstrap {
+    fileprivate func clientBootstrap(context: ChannelHandlerContext, host: String, requestId: Int) -> ClientBootstrap {
         return ClientBootstrap(group: context.eventLoop).channelInitializer { channel in
-            channel.pipeline.addHandlers([
-                HTTPRequestEncoder(),
-                ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)),
-                ResponseForwarder(originalChannel: context.channel)
-            ])
+            self.setupHandlers(channel: channel, context: context)
         }
     }
     
+    fileprivate func setupHandlers(channel: Channel, context: ChannelHandlerContext) -> EventLoopFuture<Void> {
+        return channel.pipeline.addHandlers([
+            HTTPRequestEncoder(),
+            ByteToMessageHandler(HTTPResponseDecoder(leftOverBytesStrategy: .forwardBytes)),
+            ResponseForwarder(originalChannel: context.channel)
+        ])
+    }
+
     fileprivate func writeToRemoteChannel(context: ChannelHandlerContext, data: NIOAny) {
         guard let remoteChannel = remoteChannel else {
             print("Remote channel is not available")
