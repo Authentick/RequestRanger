@@ -11,7 +11,7 @@ struct SelectableRequestTable: View {
     @State private var searchTextPublisher = PassthroughSubject<String, Never>()
     @State private var debouncedSearchText: String = ""
     private var cancellables = Set<AnyCancellable>()
-
+    
 #if os(iOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     private var isCompact: Bool { horizontalSizeClass == .compact }
@@ -26,7 +26,7 @@ struct SelectableRequestTable: View {
         self._searchText = searchText
         self._filteredRequestIds = filteredRequestIds
     }
-
+    
     private var filteredRequests: [ProxiedHttpRequest] {
         let requests: [ProxiedHttpRequest]
         if let filteredIds = filteredRequestIds {
@@ -36,9 +36,15 @@ struct SelectableRequestTable: View {
         } else {
             requests = appState.proxyData.httpRequests
         }
-        return requests.sorted(using: sortOrder)
+        
+        let filteredAndSortedRequests = requests
+            .filter { request in
+                debouncedSearchText == "" || request.rawRequest.contains(debouncedSearchText) || (request.response != nil && request.response!.rawResponse.contains(debouncedSearchText))
+            }
+            .sorted(using: sortOrder)
+        
+        return filteredAndSortedRequests
     }
-
     
     private func GetSelectedRequest() -> ProxiedHttpRequest? {
         return filteredRequests.first(where: { $0.id == selectedRequest })
@@ -60,21 +66,19 @@ struct SelectableRequestTable: View {
                 TableColumn("Path", value: \.path)
             } rows: {
                 ForEach(filteredRequests) { request in
-                    if debouncedSearchText == "" || (request.rawRequest.contains(debouncedSearchText) || (request.response != nil && request.response!.rawResponse.contains(debouncedSearchText))) {
-                        TableRow(request)
-                            .contextMenu {
-                                Button {
-                                    if let idx = appState.proxyData.httpRequests.firstIndex(where: {$0.id == request.id}) {
-                                        if(selectedRequest == request.id) {
-                                            selectedRequest = nil
-                                        }
-                                        appState.proxyData.httpRequests.remove(at: idx)
+                    TableRow(request)
+                        .contextMenu {
+                            Button {
+                                if let idx = appState.proxyData.httpRequests.firstIndex(where: {$0.id == request.id}) {
+                                    if(selectedRequest == request.id) {
+                                        selectedRequest = nil
                                     }
-                                } label: {
-                                    Text("Delete")
+                                    appState.proxyData.httpRequests.remove(at: idx)
                                 }
+                            } label: {
+                                Text("Delete")
                             }
-                    }
+                        }
                 }
             }
             .onReceive(searchTextPublisher.debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)) { debouncedText in
