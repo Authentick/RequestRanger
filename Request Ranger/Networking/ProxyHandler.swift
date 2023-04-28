@@ -130,7 +130,6 @@ final class RequestInterceptionHandler: ChannelInboundHandler {
     
     func userDidDeny() {
         context!.eventLoop.execute {
-            
             var headers = HTTPHeaders()
             headers.add(name: "Content-Type", value: "text/plain; charset=utf-8")
             
@@ -355,8 +354,13 @@ final class HttpsConnectRewriteHandler: ChannelInboundHandler, RemovableChannelH
 final class HttpProxyUriRewriterHandler: ChannelInboundHandler {
     typealias InboundIn = HTTPServerRequestPart
     typealias InboundOut = HTTPServerRequestPart
-    
+    private var errorFired = false
+
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        guard !errorFired else {
+            return
+        }
+
         var requestPart = self.unwrapInboundIn(data)
         switch requestPart {
         case .head(var head):
@@ -366,7 +370,7 @@ final class HttpProxyUriRewriterHandler: ChannelInboundHandler {
                 head.uri = originalURI.relativePath
                 requestPart = .head(head)
             } else {
-                context.fireErrorCaught(HttpProxyUriRewriterError.invalidRequestURI)
+                errorFired = true
                 context.close(promise: nil)
                 return
             }
@@ -375,10 +379,6 @@ final class HttpProxyUriRewriterHandler: ChannelInboundHandler {
         }
         
         context.fireChannelRead(self.wrapInboundOut(requestPart))
-    }
-    
-    enum HttpProxyUriRewriterError: Error {
-        case invalidRequestURI
     }
 }
 
