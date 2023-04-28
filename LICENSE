@@ -6,3 +6,4 @@ Currently the following components are included:
 - HttpParser: MIT
 - Request Ranger: MIT
 - SwiftDiff: Apache 2.0
+- highlight.js: BSD 3-Clause License

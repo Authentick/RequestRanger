@@ -34,6 +34,10 @@
 		FB83549B29F07C1000A1169D /* NIOHTTP1 in Frameworks */ = {isa = PBXBuildFile; productRef = FB83549A29F07C1000A1169D /* NIOHTTP1 */; };
 		FB83549E29F0806E00A1169D /* X509 in Frameworks */ = {isa = PBXBuildFile; productRef = FB83549D29F0806E00A1169D /* X509 */; };
 		FB8354A129F0854D00A1169D /* SwiftASN1 in Frameworks */ = {isa = PBXBuildFile; productRef = FB8354A029F0854D00A1169D /* SwiftASN1 */; };
+		FB9293C229FC6ADD00EE1945 /* SyntaxHighlighterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB9293C129FC6ADD00EE1945 /* SyntaxHighlighterView.swift */; };
+		FB9293C429FC6D4500EE1945 /* highlight.min.css in Resources */ = {isa = PBXBuildFile; fileRef = FB9293C329FC6D4400EE1945 /* highlight.min.css */; };
+		FB9293C629FC6D6500EE1945 /* highlight.min.js in Resources */ = {isa = PBXBuildFile; fileRef = FB9293C529FC6D6500EE1945 /* highlight.min.js */; };
+		FB9293C829FC724400EE1945 /* SyntaxHighlightMimeTypeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB9293C729FC724400EE1945 /* SyntaxHighlightMimeTypeHelper.swift */; };
 		FB9DD7AD29F9AF9E00C24537 /* RequestConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB9DD7AC29F9AF9E00C24537 /* RequestConverter.swift */; };
 		FBD4CEF229E600E0008EB5E2 /* ProxyHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBD4CEF129E600E0008EB5E2 /* ProxyHandler.swift */; };
 		FBD4CF0329E609E3008EB5E2 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = FBD4CF0229E609E3008EB5E2 /* Logging */; };
@@ -88,6 +92,10 @@
 		FB731E3329EC4E610036F189 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		FB7962B029E71FF500997994 /* ConditionalSplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalSplitView.swift; sourceTree = "<group>"; };
 		FB7BE55429DA0A9700DF17A6 /* HTMLEntities */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HTMLEntities; sourceTree = "<group>"; };
+		FB9293C129FC6ADD00EE1945 /* SyntaxHighlighterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxHighlighterView.swift; sourceTree = "<group>"; };
+		FB9293C329FC6D4400EE1945 /* highlight.min.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = highlight.min.css; sourceTree = "<group>"; };
+		FB9293C529FC6D6500EE1945 /* highlight.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = highlight.min.js; sourceTree = "<group>"; };
+		FB9293C729FC724400EE1945 /* SyntaxHighlightMimeTypeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxHighlightMimeTypeHelper.swift; sourceTree = "<group>"; };
 		FB9DD7AC29F9AF9E00C24537 /* RequestConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestConverter.swift; sourceTree = "<group>"; };
 		FBB3E34129E3451C00529FA3 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		FBB674F829D9E40D00961338 /* Request Ranger.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Request Ranger.entitlements"; sourceTree = "<group>"; };
@@ -204,6 +212,7 @@
 		FB2BF90829CF3585006FA9C3 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				FB9293C029FC6AD100EE1945 /* SyntaxHighlighter */,
 				FBFD02F729EAFDC600E02A11 /* Sitemap */,
 				FB7962AE29E71FDB00997994 /* Helpers */,
 				FB5150E429DA20A5003B4CDA /* Comparer */,
@@ -227,7 +236,6 @@
 			isa = PBXGroup;
 			children = (
 				FB2BF91429CF3D0E006FA9C3 /* ProxyHttpHistoryView.swift */,
-				FB366E4F29D8844400E2D087 /* SwiftUIWebView.swift */,
 				FBD4CF0429E6AC51008EB5E2 /* HeadersView.swift */,
 				FBD4CF0629E6BC5C008EB5E2 /* RawRequestTextViewerView.swift */,
 			);
@@ -267,6 +275,7 @@
 		FB7962AE29E71FDB00997994 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				FB9B706629FC7680008F20CD /* WebView */,
 				FB7962AF29E71FE400997994 /* PlatformCompatibility */,
 				FBFD02FA29EB0A3F00E02A11 /* SelectableRequestTable.swift */,
 				FBE4624F29EC131400C2CFD8 /* HelpPopOverView.swift */,
@@ -280,6 +289,25 @@
 				FB7962B029E71FF500997994 /* ConditionalSplitView.swift */,
 			);
 			path = PlatformCompatibility;
+			sourceTree = "<group>";
+		};
+		FB9293C029FC6AD100EE1945 /* SyntaxHighlighter */ = {
+			isa = PBXGroup;
+			children = (
+				FB9293C529FC6D6500EE1945 /* highlight.min.js */,
+				FB9293C329FC6D4400EE1945 /* highlight.min.css */,
+				FB9293C129FC6ADD00EE1945 /* SyntaxHighlighterView.swift */,
+				FB9293C729FC724400EE1945 /* SyntaxHighlightMimeTypeHelper.swift */,
+			);
+			path = SyntaxHighlighter;
+			sourceTree = "<group>";
+		};
+		FB9B706629FC7680008F20CD /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				FB366E4F29D8844400E2D087 /* SwiftUIWebView.swift */,
+			);
+			path = WebView;
 			sourceTree = "<group>";
 		};
 		FB9DD7AB29F9AF8200C24537 /* RequestBuilder */ = {
@@ -394,10 +422,12 @@
 			files = (
 				FB58EE9B29E3441900BE7A6D /* README.md in Resources */,
 				FB58EE9629E3440300BE7A6D /* LICENSE in Resources */,
+				FB9293C429FC6D4500EE1945 /* highlight.min.css in Resources */,
 				FB2BF90129CF335E006FA9C3 /* Preview Assets.xcassets in Resources */,
 				FB58EE9729E3440300BE7A6D /* README.md in Resources */,
 				FB2BF8FE29CF335E006FA9C3 /* Assets.xcassets in Resources */,
 				FB58EE9A29E3441900BE7A6D /* LICENSE in Resources */,
+				FB9293C629FC6D6500EE1945 /* highlight.min.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -411,11 +441,13 @@
 				FBE4625029EC131400C2CFD8 /* HelpPopOverView.swift in Sources */,
 				FB2A92CB29F33CC60063034D /* CertificateManager.swift in Sources */,
 				FB7962B129E71FF500997994 /* ConditionalSplitView.swift in Sources */,
+				FB9293C829FC724400EE1945 /* SyntaxHighlightMimeTypeHelper.swift in Sources */,
 				FBFAC69C29E45ADA007BC838 /* SaveData.swift in Sources */,
 				FBEACECD29D744CE004A8B64 /* DecodeView.swift in Sources */,
 				FB2BF8FC29CF335D006FA9C3 /* ContentView.swift in Sources */,
 				FB28C4E829FBEDBB00CF2382 /* HttpReplyReceivedNotificationMessage.swift in Sources */,
 				FB2BF91529CF3D0E006FA9C3 /* ProxyHttpHistoryView.swift in Sources */,
+				FB9293C229FC6ADD00EE1945 /* SyntaxHighlighterView.swift in Sources */,
 				FBFD02FB29EB0A3F00E02A11 /* SelectableRequestTable.swift in Sources */,
 				FB2BF8FA29CF335D006FA9C3 /* RequestRangerApp.swift in Sources */,
 				FB58450929E4119200DF9F0A /* ComparisonData.swift in Sources */,

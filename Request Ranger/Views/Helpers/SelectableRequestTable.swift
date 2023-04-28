@@ -121,8 +121,8 @@ struct SelectableRequestTable: View {
                                         Label("Headers", systemImage: "pencil")
                                     }
                                 
-                                if let contentType = response.headers["content-type"],
-                                   contentType.contains("text/html") {
+                                if let contentType = getHeaderValue(headers: response.headers, key: "Content-Type"),
+                                   contentType.starts(with: "text/html") {
                                     let responseBody = (HttpParser()).parseResponse(response.rawResponse).body
                                     
                                     SwiftUIWebView(
@@ -132,6 +132,16 @@ struct SelectableRequestTable: View {
                                     .tabItem {
                                         Label("HTML", systemImage: "photo.on.rectangle")
                                     }
+                                }
+                                
+                                if let contentType = getHeaderValue(headers: response.headers, key: "Content-Type"),
+                                   SyntaxHighlightingMimeTypeHelper.isSupported(mimeType: String(contentType)) {
+                                    let responseBody = (HttpParser()).parseResponse(response.rawResponse).body
+                                    
+                                    SyntaxHighlighterView(code: responseBody)
+                                        .tabItem {
+                                            Label("Source Code", systemImage: "chevron.left.slash.chevron.right")
+                                        }
                                 }
                             }
                         } else {
@@ -145,6 +155,16 @@ struct SelectableRequestTable: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+    }
+    
+    func getHeaderValue(headers: [String: Set<String>], key: String) -> String? {
+        let lowercaseKey = key.lowercased()
+        for (headerKey, value) in headers {
+            if headerKey.lowercased() == lowercaseKey {
+                return value.first
+            }
+        }
+        return nil
     }
 }
 
