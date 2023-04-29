@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SyntaxHighlighterView: View {
     let code: String
+    let mimeType: String
     @Environment(\.colorScheme) var colorScheme
 
     private var cssString: String {
@@ -32,7 +33,14 @@ struct SyntaxHighlighterView: View {
     }
 
     var baseTemplate: String {
-        let escapedCode = escapeHTML(code)
+        let escapeFunction = SyntaxHighlightingMimeTypeHelper.beautifyFunction(for: mimeType)
+        
+        var modifiedCode = code
+        if let escapeFunction = escapeFunction {
+            modifiedCode = escapeFunction(code, [:]) ?? code
+        }
+        
+        let escapedCode = escapeHTML(modifiedCode)
         return """
         <!DOCTYPE html>
         <html>
@@ -71,6 +79,6 @@ struct SyntaxHighlighterView: View {
 
 struct SyntaxHighlighterView_Previews: PreviewProvider {
     static var previews: some View {
-        SyntaxHighlighterView(code: "import SwiftUI\n\nstruct ContentView: View {\n    var body: some View {\n        Text(\"Hello, world!\")\n        .padding()\n    }\n}\n\nstruct ContentView_Previews: PreviewProvider {\n    static var previews: some View {\n        ContentView()\n    }\n}")
+        SyntaxHighlighterView(code: "import SwiftUI\n\nstruct ContentView: View {\n    var body: some View {\n        Text(\"Hello, world!\")\n        .padding()\n    }\n}\n\nstruct ContentView_Previews: PreviewProvider {\n    static var previews: some View {\n        ContentView()\n    }\n}", mimeType: "text/css")
     }
 }

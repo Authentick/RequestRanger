@@ -18,6 +18,7 @@
 		FB2BF91529CF3D0E006FA9C3 /* ProxyHttpHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF91429CF3D0E006FA9C3 /* ProxyHttpHistoryView.swift */; };
 		FB2BF92129CF50E8006FA9C3 /* RequestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB2BF92029CF50E8006FA9C3 /* RequestData.swift */; };
 		FB366E5029D8844400E2D087 /* SwiftUIWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB366E4F29D8844400E2D087 /* SwiftUIWebView.swift */; };
+		FB50F66529FDC18D00B5A9EC /* CodeBeautifier in Frameworks */ = {isa = PBXBuildFile; productRef = FB50F66429FDC18D00B5A9EC /* CodeBeautifier */; };
 		FB5150E629DA20B3003B4CDA /* ComparerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB5150E529DA20B3003B4CDA /* ComparerView.swift */; };
 		FB58450929E4119200DF9F0A /* ComparisonData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB58450829E4119200DF9F0A /* ComparisonData.swift */; };
 		FB58EE9629E3440300BE7A6D /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = FB58EE9429E3440300BE7A6D /* LICENSE */; };
@@ -91,6 +92,7 @@
 		FB65095529D6350400E00674 /* HttpParser */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HttpParser; sourceTree = "<group>"; };
 		FB731E3329EC4E610036F189 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		FB7962B029E71FF500997994 /* ConditionalSplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalSplitView.swift; sourceTree = "<group>"; };
+		FB7A1CBA29FD551D008CB696 /* CodeBeautifier */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = CodeBeautifier; sourceTree = "<group>"; };
 		FB7BE55429DA0A9700DF17A6 /* HTMLEntities */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = HTMLEntities; sourceTree = "<group>"; };
 		FB9293C129FC6ADD00EE1945 /* SyntaxHighlighterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxHighlighterView.swift; sourceTree = "<group>"; };
 		FB9293C329FC6D4400EE1945 /* highlight.min.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = highlight.min.css; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 				FB83549B29F07C1000A1169D /* NIOHTTP1 in Frameworks */,
 				FB65095729D6352200E00674 /* HttpParser in Frameworks */,
 				FBD4E93129DA44A100AB08B3 /* SwiftDiff in Frameworks */,
+				FB50F66529FDC18D00B5A9EC /* CodeBeautifier in Frameworks */,
 				FB731E3229EC387D0036F189 /* OrderedCollections in Frameworks */,
 				FB8354A129F0854D00A1169D /* SwiftASN1 in Frameworks */,
 			);
@@ -164,6 +167,7 @@
 			children = (
 				FB58EE9829E3441900BE7A6D /* LICENSE */,
 				FB58EE9929E3441900BE7A6D /* README.md */,
+				FB7A1CBA29FD551D008CB696 /* CodeBeautifier */,
 				FBD4E92F29DA442D00AB08B3 /* SwiftDiff */,
 				FB7BE55429DA0A9700DF17A6 /* HTMLEntities */,
 				FB65095529D6350400E00674 /* HttpParser */,
@@ -369,6 +373,7 @@
 				FB83549A29F07C1000A1169D /* NIOHTTP1 */,
 				FB83549D29F0806E00A1169D /* X509 */,
 				FB8354A029F0854D00A1169D /* SwiftASN1 */,
+				FB50F66429FDC18D00B5A9EC /* CodeBeautifier */,
 			);
 			productName = SuperProxy;
 			productReference = FB2BF8F629CF335D006FA9C3 /* Request Ranger.app */;
@@ -738,6 +743,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		FB50F66429FDC18D00B5A9EC /* CodeBeautifier */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CodeBeautifier;
+		};
 		FB65095629D6352200E00674 /* HttpParser */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = HttpParser;

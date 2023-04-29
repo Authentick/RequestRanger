@@ -138,7 +138,7 @@ struct SelectableRequestTable: View {
                                    SyntaxHighlightingMimeTypeHelper.isSupported(mimeType: String(contentType)) {
                                     let responseBody = (HttpParser()).parseResponse(response.rawResponse).body
                                     
-                                    SyntaxHighlighterView(code: responseBody)
+                                    SyntaxHighlighterView(code: responseBody, mimeType: contentType)
                                         .tabItem {
                                             Label("Source Code", systemImage: "chevron.left.slash.chevron.right")
                                         }
