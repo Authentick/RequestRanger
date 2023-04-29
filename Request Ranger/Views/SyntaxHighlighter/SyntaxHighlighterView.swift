@@ -38,7 +38,9 @@ struct SyntaxHighlighterView: View {
         <html>
         <head>
             <style>
-            html {}
+            html {
+                background-color: white;
+            }
             @media (prefers-color-scheme: dark) {
                 html{
                     filter: invert(1)  hue-rotate(.5turn);
